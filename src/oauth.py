@@ -9,7 +9,7 @@ from .schemas import Provider, User
 oauth = OAuth()
 
 oauth.register(
-    name=Provider.github,
+    name=Provider.GITHUB,
     client_id=settings.github_client_id,
     client_secret=settings.github_client_secret,
     access_token_url="https://github.com/login/oauth/access_token",
@@ -19,6 +19,8 @@ oauth.register(
 
 
 def client(provider: Provider):
+    """Get the OAuth client for a given provider."""
+
     return oauth.create_client(provider.value)
 
 
@@ -44,4 +46,6 @@ async def _github_profile(token: dict) -> User:
 
 
 async def fetch_profile(provider: Provider, token: dict) -> User:
+    """Get the profile for a given provider and token."""
+
     return await _github_profile(token)
