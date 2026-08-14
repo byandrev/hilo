@@ -1,31 +1,15 @@
-import sqlite3
-from typing import Annotated, Iterator
+"""Database initialization."""
 
-from fastapi import Depends
+from beanie import init_beanie
+from pymongo import AsyncMongoClient
 
 from .config import settings
-from .models import SCHEMA
+from .models import Comment
 
 
-def init_db() -> None:
-    """Create the table if it is missing. Runs on every boot — there are no migrations."""
+async def init_db() -> None:
+    """One client for the app's lifetime — pymongo pools connections itself,
+    so there is no per-request connection to open like SQLite needed."""
 
-    con = sqlite3.connect(settings.db_path)
-    con.execute("PRAGMA journal_mode=WAL")
-    con.executescript(SCHEMA)
-    con.commit()
-    con.close()
-
-
-def get_db() -> Iterator[sqlite3.Connection]:
-    con = sqlite3.connect(settings.db_path)
-    con.row_factory = sqlite3.Row
-    con.execute("PRAGMA busy_timeout=5000")
-
-    try:
-        yield con
-    finally:
-        con.close()
-
-
-DB = Annotated[sqlite3.Connection, Depends(get_db)]
+    client = AsyncMongoClient(settings.mongo_uri)
+    await init_beanie(database=client[settings.mongo_db], document_models=[Comment])
