@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Hilo — Self-hosted comments in a single script tag</title>
+    <meta
+      name="description"
+      content="Comments for blogs and static sites that live on your server. A FastAPI backend, one SQLite file and a script tag. Google and GitHub login. MIT."
+    />
+
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-nav">
+      <div class="container site-nav__inner">
+        <a class="brand" href="#top">hilo<span class="brand__dot">.</span></a>
+        <div class="site-nav__actions">
+          <a
+            class="btn btn--ghost nav__cta"
+            href="https://github.com/byandrev/hilo"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg
+              class="icon icon--star"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"
+              />
+            </svg>
+            Star on GitHub
+          </a>
+
+          <a class="btn btn--primary nav__cta" href="#setup">Self-host</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ============ hero ============ -->
+      <section class="hero" id="top">
+        <div class="container">
+          <p class="hero__eyebrow reveal" style="--i: 0">
+            open source · docker · self-hosted · MIT
+          </p>
+
+          <h1 class="hero__title reveal" style="--i: 1">
+            Comments that live on your server.
+          </h1>
+
+          <p class="hero__lede reveal" style="--i: 2">
+            A FastAPI backend, one SQLite file and a
+            <code>&lt;script&gt;</code> tag you drop into your pages. Google and
+            GitHub login. No ORM, no migrations, no build step, no npm.
+          </p>
+
+          <div class="hero__actions reveal" style="--i: 3">
+            <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
+            <a class="btn btn--ghost" href="#api">See the API</a>
+          </div>
+
+          <figure class="hero__code reveal" style="--i: 4">
+            <figcaption class="code__head">install</figcaption>
+
+            <pre
+              class="code__pre"
+            ><code><span class="tok-k">docker pull</span> ghcr.io/byandrev/hilo:latest</code></pre>
+          </figure>
+
+          <ol class="hero__stages reveal" style="--i: 5">
+            <li class="stage-chip">
+              <span class="stage-chip__num">1.0</span
+              ><span class="stage-chip__name">PULL</span>
+            </li>
+
+            <li class="stage-chip">
+              <span class="stage-chip__num">2.0</span
+              ><span class="stage-chip__name">CONFIGURE</span>
+            </li>
+
+            <li class="stage-chip">
+              <span class="stage-chip__num">3.0</span
+              ><span class="stage-chip__name">RUN</span>
+            </li>
+
+            <li class="stage-chip">
+              <span class="stage-chip__num">4.0</span
+              ><span class="stage-chip__name">EMBED</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ============ stages ============ -->
+      <section class="stages" id="setup">
+        <div class="container">
+          <div class="stages__intro">
+            <h2>Four steps, from docker to your blog.</h2>
+
+            <p>
+              One self-hosted instance. Your database, your users, your rules.
+              This is the whole journey.
+            </p>
+          </div>
+
+          <article class="stage">
+            <div class="stage__body">
+              <p class="stage__meta">
+                <span class="stage__num">1.0</span
+                ><span class="stage__label">PULL</span>
+              </p>
+
+              <h3 class="stage__title">Grab the image</h3>
+
+              <div class="stage__desc">
+                <p>
+                  Hilo is published on the GitHub Container Registry. Pull it
+                  and you're done — or clone and build it yourself with
+                  <code>docker compose up -d</code>.
+                </p>
+              </div>
+
+              <p class="stage__note">
+                One single image, one single runtime dependency.
+              </p>
+            </div>
+
+            <figure class="stage__media code">
+              <figcaption class="code__head">terminal</figcaption>
+
+              <pre
+                class="code__pre"
+              ><code><span class="tok-k">docker pull</span> ghcr.io/byandrev/hilo:latest</code></pre>
+            </figure>
+          </article>
+
+          <article class="stage">
+            <div class="stage__body">
+              <p class="stage__meta">
+                <span class="stage__num">2.0</span
+                ><span class="stage__label">CONFIGURE</span>
+              </p>
+
+              <h3 class="stage__title">Configure the environment</h3>
+              <div class="stage__desc">
+                <p>
+                  Copy the template and generate a <code>SECRET_KEY</code>.
+                  Three variables are the base: <code>BASE_URL</code>,
+                  <code>ALLOWED_ORIGINS</code> and <code>ALLOWED_SITES</code>.
+                  OAuth credentials go here too.
+                </p>
+              </div>
+
+              <p class="stage__note">
+                <code>ALLOWED_ORIGINS</code> lists scheme + host + port, exactly
+                as the browser sends it. <code>ALLOWED_SITES</code> keeps your
+                instance from being an open database.
+              </p>
+            </div>
+
+            <figure class="stage__media code">
+              <figcaption class="code__head">.env</figcaption>
+
+              <pre
+                class="code__pre"
+              ><code>SECRET_KEY=<span class="tok-c"># python3 -c "import secrets; print(secrets.token_urlsafe(32))"</span>
+BASE_URL=https://comments.example.com
+ALLOWED_ORIGINS=https://example.com,https://www.example.com
+ALLOWED_SITES=myblog,yourblog
+GOOGLE_CLIENT_ID=<span class="tok-s">…</span>
+GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
+            </figure>
+          </article>
+
+          <article class="stage">
+            <div class="stage__body">
+              <p class="stage__meta">
+                <span class="stage__num">3.0</span
+                ><span class="stage__label">RUN</span>
+              </p>
+
+              <h3 class="stage__title">Launch it and add TLS</h3>
+
+              <div class="stage__desc">
+                <p>
+                  Bring the container up. The compose file mounts
+                  <code>./data</code> and forces
+                  <code>DB_PATH=/data/comments.db</code> so the database
+                  survives rebuilds. In front, a Caddy reverse proxy.
+                </p>
+              </div>
+
+              <p class="stage__note">
+                One worker is the right call. SQLite in WAL supports concurrent
+                readers; scale with proxy caching, not by adding workers.
+              </p>
+            </div>
+
+            <div class="stage__media">
+              <figure class="code">
+                <figcaption class="code__head">docker-compose.yml</figcaption>
+
+                <pre class="code__pre"><code>services:
+  comments:
+    image: ghcr.io/byandrev/hilo:latest
+    ports: [<span class="tok-s">"8000:8000"</span>]
+    env_file: .env
+    environment:
+      DB_PATH: /data/comments.db
+    volumes: [<span class="tok-s">"./data:/data"</span>]
+    restart: unless-stopped</code></pre>
+              </figure>
+
+              <figure class="code" style="margin-top: var(--space-md)">
+                <figcaption class="code__head">terminal</figcaption>
+                <pre
+                  class="code__pre"
+                ><code><span class="tok-k">docker compose</span> up -d</code></pre>
+              </figure>
+            </div>
+          </article>
+
+          <article class="stage">
+            <div class="stage__body">
+              <p class="stage__meta">
+                <span class="stage__num">4.0</span
+                ><span class="stage__label">EMBED</span>
+              </p>
+
+              <h3 class="stage__title">Paste the tag</h3>
+
+              <div class="stage__desc">
+                <p>
+                  The widget renders wherever you put the tag.
+                  <code>data-page</code> is optional: it defaults to
+                  <code>location.pathname</code>.
+                </p>
+              </div>
+
+              <p class="stage__note">
+                <code>data-sort</code>=oldest|newest ·
+                <code>data-theme</code>=default|solarized|nord|sepia ·
+                <code>data-scheme</code>=light|dark
+              </p>
+            </div>
+
+            <figure class="stage__media code">
+              <figcaption class="code__head">HTML</figcaption>
+
+              <pre class="code__pre"><code>&lt;script
+  src=<span class="tok-s">"https://comments.example.com/embed.js"</span>
+  data-site=<span class="tok-s">"myblog"</span>
+  data-page=<span class="tok-s">"/posts/hello-world"</span>
+&gt;&lt;/script&gt;</code></pre>
+            </figure>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ features ============ -->
+      <section class="features" id="features">
+        <div class="container">
+          <div class="features__head">
+            <h2>What it ships with.</h2>
+
+            <p>
+              No magic. Each of these is a real line in the
+              <code>README.md</code>.
+            </p>
+          </div>
+
+          <ul class="feature-list">
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Google and GitHub login</p>
+                <p class="feature__desc">
+                  No passwords, no account management.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Unlimited reply nesting</p>
+                <p class="feature__desc">
+                  Resolved client-side from a single flat query.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Soft deletes</p>
+                <p class="feature__desc">
+                  Authors delete their own, admins delete any. Replies survive.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">5/min rate limit per user</p>
+                <p class="feature__desc">
+                  Anti-abuse by default, no moderation queue.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">One single SQLite file</p>
+                <p class="feature__desc">Backup is a <code>cp</code>.</p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Multi-site</p>
+                <p class="feature__desc">
+                  One instance serves every blog in
+                  <code>ALLOWED_SITES</code>.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Shadow DOM</p>
+                <p class="feature__desc">
+                  Your CSS and the widget's never clash.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Restyleable</p>
+                <p class="feature__desc">
+                  Custom properties and <code>::part()</code>. No build, no
+                  fork.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Automatic dark mode</p>
+                <p class="feature__desc">
+                  Follows <code>prefers-color-scheme</code>.
+                </p>
+              </div>
+            </li>
+
+            <li class="feature">
+              <span class="feature__mark" aria-hidden="true"></span>
+
+              <div>
+                <p class="feature__name">Relative timestamps</p>
+                <p class="feature__desc">
+                  Localized to each visitor's language.
+                </p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ scope ============ -->
+      <section class="scope">
+        <div class="container scope__inner">
+          <h2>What it doesn't do.</h2>
+
+          <p>
+            No markdown, no editing, no votes or reactions, no notifications, no
+            pagination, no moderation queue, no spam filter. Mandatory OAuth
+            plus the rate limit is the whole anti-abuse story — and for a
+            personal blog that's enough.
+          </p>
+
+          <ul class="scope__no-list">
+            <li>no markdown</li>
+            <li>no editing</li>
+            <li>no votes</li>
+            <li>no notifications</li>
+            <li>no pagination</li>
+            <li>no moderation</li>
+            <li>no spam filter</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ============ api ============ -->
+      <section class="api" id="api">
+        <div class="container">
+          <div class="api__head">
+            <h2>A small API, on purpose.</h2>
+
+            <p>
+              Six routes. Interactive docs at <code>/docs</code>. Everything
+              else is easy to add later.
+            </p>
+          </div>
+
+          <div class="spec">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Method · Route</th>
+                  <th scope="col">Auth</th>
+                  <th scope="col">Notes</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="spec__method">GET</span>
+                    /api/comments?site=&amp;page=
+                  </td>
+
+                  <td class="spec__auth">—</td>
+
+                  <td>
+                    Flat list ordered by id. Deleted rows come back blank.
+                  </td>
+                </tr>
+
+                <tr>
+                  <td><span class="spec__method">POST</span> /api/comments</td>
+
+                  <td class="spec__auth">Bearer</td>
+
+                  <td>
+                    {site, page, body, parent_id?} → 201 with the new row.
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <span class="spec__method">DELETE</span> /api/comments/{id}
+                  </td>
+
+                  <td class="spec__auth">Bearer</td>
+
+                  <td>Author or admin → 204.</td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <span class="spec__method">GET</span>
+                    /auth/{provider}/login?origin=
+                  </td>
+
+                  <td class="spec__auth">—</td>
+
+                  <td>provider ∈ google, github.</td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <span class="spec__method">GET</span>
+                    /auth/{provider}/callback
+                  </td>
+
+                  <td class="spec__auth">—</td>
+
+                  <td>Returns the <code>postMessage</code> bridge page.</td>
+                </tr>
+
+                <tr>
+                  <td><span class="spec__method">GET</span> /embed.js</td>
+
+                  <td class="spec__auth">—</td>
+
+                  <td>The widget.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ final CTA ============ -->
+      <section class="final-cta">
+        <div class="container">
+          <h2>Comments on your server, today.</h2>
+
+          <p>
+            A <code>docker pull</code>, a <code>.env</code> and a script tag.
+            The database lives on your machine.
+          </p>
+
+          <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <span class="site-footer__brand"
+          >hilo<span class="brand__dot">.</span></span
+        >
+
+        <ul class="site-footer__links">
+          <li><a href="#setup">Install</a></li>
+          <li><a href="#api">API</a></li>
+          <li><a href="#features">Features</a></li>
+        </ul>
+
+        <span class="site-footer__credit"
+          >&copy; 2026 · self-hosted comments</span
+        >
+
+        <span class="site-footer__credit">
+          Open source · <a href="https://github.com/byandrev/hilo">GitHub</a>
+          · Created by
+          <a href="https://www.byandrev.dev/">Andres Parra</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

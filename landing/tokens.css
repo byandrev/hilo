@@ -1,0 +1,87 @@
+:root {
+  color-scheme: light dark;
+
+  /* ---- colour · Cobalt (cobalt-on-light) ---- */
+  --color-paper: oklch(97.5% 0.006 250);
+  --color-paper-2: oklch(94.5% 0.009 250);
+  --color-rule: oklch(88% 0.012 250);
+  --color-neutral: oklch(55% 0.015 250);
+  --color-muted: oklch(45% 0.018 250);
+  --color-ink: oklch(21% 0.025 250);
+  --color-ink-2: oklch(32% 0.022 250);
+  --color-accent: oklch(55% 0.21 255);
+  --color-accent-ink: oklch(46% 0.2 255);
+  --color-focus: oklch(62% 0.19 255);
+  --color-code: oklch(93% 0.008 250);
+  --color-code-ink: oklch(28% 0.02 250);
+  --color-btn: oklch(21% 0.025 250);
+  --color-btn-hover: oklch(29% 0.03 250);
+  --color-btn-text: oklch(98% 0.004 250);
+
+  /* ---- typography ---- */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.1875rem;
+  --text-lg: 1.5rem;
+  --text-xl: 1.9rem;
+  --text-2xl: 2.375rem;
+  --text-3xl: 2.9rem;
+  --text-display: clamp(2.5rem, 4vw + 1.25rem, 4.5rem);
+
+  /* ---- spacing · 4pt scale ---- */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 8rem;
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  /* ---- geometry ---- */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --measure: 65ch;
+
+  /* ---- z-index scale ---- */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 200;
+  --z-modal: 400;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(16% 0.015 250);
+    --color-paper-2: oklch(20% 0.017 250);
+    --color-rule: oklch(30% 0.018 250);
+    --color-neutral: oklch(64% 0.014 250);
+    --color-muted: oklch(72% 0.012 250);
+    --color-ink: oklch(92% 0.008 250);
+    --color-ink-2: oklch(82% 0.012 250);
+    --color-accent: oklch(66% 0.16 255);
+    --color-accent-ink: oklch(72% 0.15 255);
+    --color-focus: oklch(70% 0.15 255);
+    --color-code: oklch(21% 0.017 250);
+    --color-code-ink: oklch(86% 0.012 250);
+    --color-btn: oklch(90% 0.008 250);
+    --color-btn-hover: oklch(82% 0.012 250);
+    --color-btn-text: oklch(16% 0.015 250);
+  }
+}
