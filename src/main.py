@@ -17,7 +17,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="comments", lifespan=lifespan)
+app = FastAPI(title="Hilo", lifespan=lifespan)
 
 
 app.add_middleware(

@@ -23,6 +23,7 @@
     providers: { google: "Google", github: "GitHub" },
     expired: "Your session expired. Please sign in again.",
     failed: "Something went wrong.",
+    poweredBy: "Powered by Hilo",
   };
 
   const host = document.createElement("div");
@@ -41,6 +42,7 @@
   const root = host.attachShadow({ mode: "open" });
 
   root.innerHTML = `<div class="widget" part="widget">
+    <footer class="powered" part="powered"></footer>
     <div class="bar" part="bar"></div>
     <div class="thread" part="thread"></div>
   </div>`;
@@ -55,21 +57,31 @@
   root.prepend(styles, themeStyles);
   const inject = (url, el) =>
     fetch(url)
-      .then((r) => { if (!r.ok) throw new Error(); return r.text(); })
-      .then((css) => { el.textContent = css; });
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        return r.text();
+      })
+      .then((css) => {
+        el.textContent = css;
+      });
   inject(API + "/embed.css", styles);
-  inject(API + `/themes/${theme}.css`, themeStyles)
-    .catch(() => inject(API + "/themes/default.css", themeStyles));
+  inject(API + `/themes/${theme}.css`, themeStyles).catch(() =>
+    inject(API + "/themes/default.css", themeStyles),
+  );
 
   const $ = (s) => root.querySelector(s);
   const thread = $(".thread");
   const bar = $(".bar");
+  $(".powered").textContent = TEXT.poweredBy;
 
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
     // Anything with a class is also a ::part(), so the host page can restyle any
     // piece of the widget without us maintaining a separate list.
-    if (cls) { n.className = cls; n.setAttribute("part", cls); }
+    if (cls) {
+      n.className = cls;
+      n.setAttribute("part", cls);
+    }
     if (text != null) n.textContent = text; // never innerHTML with user data
     return n;
   };
@@ -78,8 +90,12 @@
 
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
   const UNITS = [
-    ["year", 31536000], ["month", 2592000], ["week", 604800],
-    ["day", 86400], ["hour", 3600], ["minute", 60],
+    ["year", 31536000],
+    ["month", 2592000],
+    ["week", 604800],
+    ["day", 86400],
+    ["hour", 3600],
+    ["minute", 60],
   ];
   const parseUTC = (s) =>
     // SQLite gives "2026-08-14 12:34:56" with no zone marker, which most browsers
@@ -89,7 +105,8 @@
   const ago = (date) => {
     const secs = (date - Date.now()) / 1000;
     for (const [unit, size] of UNITS) {
-      if (Math.abs(secs) >= size) return rtf.format(Math.round(secs / size), unit);
+      if (Math.abs(secs) >= size)
+        return rtf.format(Math.round(secs / size), unit);
     }
     return rtf.format(Math.round(secs), "second");
   };
@@ -108,8 +125,14 @@
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
-    if (res.status === 401) { logout(); throw new Error(TEXT.expired); }
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || TEXT.failed);
+    if (res.status === 401) {
+      logout();
+      throw new Error(TEXT.expired);
+    }
+    if (!res.ok)
+      throw new Error(
+        (await res.json().catch(() => ({}))).detail || TEXT.failed,
+      );
     return res.status === 204 ? null : res.json();
   };
 
@@ -151,7 +174,12 @@
       try {
         await api("/api/comments", {
           method: "POST",
-          body: JSON.stringify({ site: SITE, page: PAGE, body: ta.value, parent_id: parentId }),
+          body: JSON.stringify({
+            site: SITE,
+            page: PAGE,
+            body: ta.value,
+            parent_id: parentId,
+          }),
         });
         await render();
       } catch (ex) {
@@ -197,7 +225,10 @@
     if (token) {
       const reply = el("button", "action", TEXT.reply);
       reply.type = "button";
-      reply.onclick = () => { reply.disabled = true; composer(c.id, actions); };
+      reply.onclick = () => {
+        reply.disabled = true;
+        composer(c.id, actions);
+      };
       actions.append(reply);
     }
     if (user && c.author_id === user.sub) {
@@ -219,7 +250,7 @@
     let rows;
     try {
       rows = await api(
-        `/api/comments?site=${encodeURIComponent(SITE)}&page=${encodeURIComponent(PAGE)}&sort=${SORT}`
+        `/api/comments?site=${encodeURIComponent(SITE)}&page=${encodeURIComponent(PAGE)}&sort=${SORT}`,
       );
     } catch (e) {
       thread.replaceChildren(el("p", "error", e.message));
@@ -252,7 +283,11 @@
       composer(null, bar);
     } else {
       for (const p of ["google", "github"]) {
-        const b = el("button", "primary", `${TEXT.signIn} ${TEXT.providers[p]}`);
+        const b = el(
+          "button",
+          "primary",
+          `${TEXT.signIn} ${TEXT.providers[p]}`,
+        );
         b.type = "button";
         b.onclick = () => login(p);
         bar.append(b);

@@ -219,6 +219,14 @@ button[disabled] {
   color: var(--_muted);
 }
 
+/* --- footer ------------------------------------------------------ */
+
+.powered {
+  color: var(--_muted);
+  font-size: 0.75em;
+  text-align: right;
+}
+
 /* Vertical rhythm between the bar, the composer and the thread */
 .widget > * + * {
   margin-top: var(--_gap);

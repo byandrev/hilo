@@ -1,4 +1,4 @@
-# comments
+# Hilo
 
 Self-hosted comments for blogs and static sites. A FastAPI backend, a SQLite file, and one
 `<script>` tag you paste into your pages. Sign-in with Google and GitHub. MIT licensed.
