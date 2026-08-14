@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8" />
 <title>comments demo</title>
-<!-- <link rel="stylesheet" href="http://localhost:8000/embed.css" /> -->
+
 <style>
   body {
     font:
@@ -13,7 +13,11 @@
   }
 </style>
 
+<link rel="stylesheet" href="../static/embed.css" />
+<link rel="stylesheet" href="../static/themes/nord.css" />
+
 <h1>Just some blog post</h1>
+
 <p>
   Serve this on a DIFFERENT port than the API (python3 -m http.server 3000
   --directory examples), or you are not testing the case that matters:
@@ -21,30 +25,9 @@
 </p>
 
 <script
-  src="http://localhost:8000/embed.js"
+  src="../static/embed.js"
   data-site="myblog"
   data-page="/examples/demo"
+  data-api="http://localhost:8000"
   data-scheme="light"
-  data-theme="nord"
-  data-css="embed.css"
-  data-theme-css="theme.css"
 ></script>
-
-<!-- data-css and data-theme-css point at ./embed.css and ./theme.css, served
-     alongside this page on :3000 — self-hosted copies instead of the ones at
-     :8000/embed.css and :8000/themes/nord.css.
-
-     To also self-host embed.js itself (all three files downloaded, only the
-     API stays on :8000), swap the tag above for this one instead:
-
-     <script
-       src="embed.js"
-       data-api="http://localhost:8000"
-       data-site="myblog"
-       data-page="/examples/demo"
-       data-scheme="light"
-       data-theme="nord"
-       data-css="embed.css"
-       data-theme-css="theme.css"
-     ></script>
--->
