@@ -17,6 +17,33 @@ file of vanilla JS.
 The widget renders where you put the tag. `data-page` is optional — it defaults to
 `location.pathname`.
 
+### Optional `data-*` attributes
+
+All except `data-site` are optional.
+
+| Attribute     | Values                                  | Default             | What it does                                                            |
+| ------------- | --------------------------------------- | ------------------- | ----------------------------------------------------------------------- |
+| `data-site`   | any string                              | —                   | Required. The comment feed's namespace; must be in `ALLOWED_SITES`      |
+| `data-page`   | any string                              | `location.pathname` | Which page's thread to load                                             |
+| `data-sort`   | `oldest`, `newest`                      | `newest`            | Thread ordering: newest-first puts the latest comment on top            |
+| `data-theme`  | `default`, `solarized`, `nord`, `sepia` | `default`           | Color theme from `static/themes/*.css`                                  |
+| `data-scheme` | `light`, `dark`                         | follows the OS      | Force a light or dark color scheme regardless of `prefers-color-scheme` |
+
+```html
+<script
+  src="https://comments.example.com/embed.js"
+  data-site="myblog"
+  data-page="/posts/hello-world"
+  data-sort="newest"
+  data-theme="nord"
+  data-scheme="dark"
+></script>
+```
+
+`data-theme` is a file under `themes/`; the embed falls back to `default` if the
+named theme can't be loaded. `data-scheme` only makes sense when you want to pin
+the look — normally the widget follows the OS setting automatically.
+
 ## Features
 
 - Sign in with **Google** and **GitHub** — no passwords, no account management
