@@ -1,97 +1,108 @@
-"""The table, and every query that touches it.
+"""The document, and every query that touches it.
 
-SQL lives here and nowhere else. That is the point of this module: the rule that
-every query is parameterised is auditable by reading one file.
+Mongo lives here and nowhere else — same rule as before: one file to audit for how
+comments are read and written.
 """
 
-import sqlite3
+from datetime import datetime, timedelta, timezone
 
-SCHEMA = """
-CREATE TABLE IF NOT EXISTS comments (
-  id            INTEGER PRIMARY KEY,
-  site          TEXT NOT NULL,
-  page          TEXT NOT NULL,
-  parent_id     INTEGER REFERENCES comments(id),
-  body          TEXT NOT NULL,
-  author_id     TEXT NOT NULL,
-  author_name   TEXT NOT NULL,
-  author_avatar TEXT,
-  created_at    TEXT NOT NULL DEFAULT (datetime('now')),
-  deleted       INTEGER NOT NULL DEFAULT 0
-);
-CREATE INDEX IF NOT EXISTS idx_page ON comments(site, page, id);
-"""
-
-COLUMNS = (
-    "id, parent_id, body, author_id, author_name, author_avatar, created_at, deleted"
-)
+from beanie import Document, PydanticObjectId
+from pydantic import Field
+from pymongo import IndexModel
 
 
-def list_for_page(
-    con: sqlite3.Connection, site: str, page: str, sort: str = "newest"
-) -> list[sqlite3.Row]:
-    """Flat, ordered by id. The client builds the tree — no recursive CTE needed.
+class Comment(Document):
+    """A comment on a page, with optional parent_id for threading."""
+
+    site: str
+    page: str
+    parent_id: PydanticObjectId | None = None
+    body: str
+    author_id: str
+    author_name: str
+    author_avatar: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    deleted: bool = False
+
+    class Settings:
+        """Beanie settings for the Comment document."""
+
+        name = "comments"
+        indexes = [IndexModel([("site", 1), ("page", 1), ("_id", 1)])]
+
+
+async def list_for_page(site: str, page: str, sort: str = "newest") -> list[Comment]:
+    """Flat, ordered by id. The client builds the tree — no recursive lookup needed.
 
     sort="oldest" gives the thread top-down; sort="newest" (default) puts the latest on top.
     """
 
-    order = "DESC" if sort == "newest" else "ASC"
+    order = -1 if sort == "newest" else 1
 
-    return con.execute(
-        f"SELECT {COLUMNS} FROM comments WHERE site = ? AND page = ? ORDER BY id {order}",
-        (site, page),
-    ).fetchall()
-
-
-def get(con: sqlite3.Connection, comment_id: int) -> sqlite3.Row | None:
-    return con.execute(
-        f"SELECT {COLUMNS} FROM comments WHERE id = ?", (comment_id,)
-    ).fetchone()
+    return (
+        await Comment.find(Comment.site == site, Comment.page == page)
+        .sort(("_id", order))
+        .to_list()
+    )
 
 
-def exists_on_page(
-    con: sqlite3.Connection, comment_id: int, site: str, page: str
-) -> bool:
+async def get(comment_id: PydanticObjectId) -> Comment | None:
+    """Get a comment by its ID."""
+
+    return await Comment.get(comment_id)
+
+
+async def exists_on_page(comment_id: PydanticObjectId, site: str, page: str) -> bool:
     """Used to reject replies grafted onto a thread they do not belong to."""
 
-    row = con.execute(
-        "SELECT 1 FROM comments WHERE id = ? AND site = ? AND page = ?",
-        (comment_id, site, page),
-    ).fetchone()
-
-    return row is not None
-
-
-def count_recent(con: sqlite3.Connection, author_id: str, seconds: int = 60) -> int:
-    return con.execute(
-        "SELECT count(*) FROM comments"
-        " WHERE author_id = ? AND created_at > datetime('now', ?)",
-        (author_id, f"-{seconds} seconds"),
-    ).fetchone()[0]
+    return (
+        await Comment.find_one(
+            Comment.id == comment_id, Comment.site == site, Comment.page == page
+        )
+        is not None
+    )
 
 
-def insert(
-    con: sqlite3.Connection,
+async def count_recent(author_id: str, seconds: int = 60) -> int:
+    """Count the number of comments made by an author in the last N seconds."""
+
+    since = datetime.now(timezone.utc) - timedelta(seconds=seconds)
+
+    return await Comment.find(
+        Comment.author_id == author_id, Comment.created_at > since
+    ).count()
+
+
+async def insert(
     *,
     site: str,
     page: str,
-    parent_id: int | None,
+    parent_id: PydanticObjectId | None,
     body: str,
     author_id: str,
     author_name: str,
     author_avatar: str | None,
-) -> sqlite3.Row:
-    cur = con.execute(
-        "INSERT INTO comments (site, page, parent_id, body, author_id, author_name, author_avatar)"
-        " VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (site, page, parent_id, body, author_id, author_name, author_avatar),
+) -> Comment:
+    """Insert a new comment into the database."""
+
+    comment = Comment(
+        site=site,
+        page=page,
+        parent_id=parent_id,
+        body=body,
+        author_id=author_id,
+        author_name=author_name,
+        author_avatar=author_avatar,
     )
+    await comment.insert()
 
-    con.commit()
-
-    return get(con, cur.lastrowid)
+    return comment
 
 
-def soft_delete(con: sqlite3.Connection, comment_id: int) -> None:
-    con.execute("UPDATE comments SET deleted = 1 WHERE id = ?", (comment_id,))
-    con.commit()
+async def soft_delete(comment_id: PydanticObjectId) -> None:
+    """Mark a comment as deleted, but do not remove it from the database."""
+
+    comment = await Comment.get(comment_id)
+    comment.deleted = True
+
+    await comment.save()
