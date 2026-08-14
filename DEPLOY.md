@@ -5,31 +5,17 @@ a comment widget is a few requests per page view, and reads never touch the netw
 your own box.
 
 You need a **domain or subdomain for the API** (`comments.example.com`), separate from the
-blog it serves. HTTPS is not optional: Google will not accept a plain-HTTP callback on a
+blog it serves. HTTPS is not optional: GitHub will not accept a plain-HTTP callback on a
 public host, and the OAuth session cookie is marked `Secure` whenever `BASE_URL` starts
 with `https`.
 
 ---
 
-## 1. Register the OAuth apps
+## 1. Register the OAuth app
 
-Both providers need a callback URL that matches `{BASE_URL}/auth/{provider}/callback`
+The provider needs a callback URL that matches `{BASE_URL}/auth/{provider}/callback`
 **exactly** — protocol, host, path, no trailing slash. A mismatch is the single most common
 setup failure, and the error message comes from the provider, not from this app.
-
-### Google
-
-1. [console.cloud.google.com](https://console.cloud.google.com/apis/credentials) → create or
-   pick a project.
-2. _OAuth consent screen_ → **External** → fill in app name and support email. While the app
-   is in _Testing_ only the accounts you list under _Test users_ can sign in — publish it
-   when you are ready for real visitors.
-3. _Credentials_ → _Create credentials_ → **OAuth client ID** → _Web application_.
-4. Under **Authorised redirect URIs** add:
-   ```
-   https://comments.example.com/auth/google/callback
-   ```
-5. Copy the client ID and secret into `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
 
 ### GitHub
 
@@ -62,8 +48,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # → SECRET_KEY
 | `ADMIN_EMAILS`                 | no              | Comma-separated. These accounts can delete any comment                           |
 | `RATE_LIMIT_PER_MINUTE`        | no              | Comments per minute per user. Defaults to 5                                      |
 | `TOKEN_MAX_AGE_DAYS`           | no              | How long a login lasts. Defaults to 30                                           |
-| `GOOGLE_CLIENT_ID` / `_SECRET` | per provider    | From step 1                                                                      |
-| `GITHUB_CLIENT_ID` / `_SECRET` | per provider    | From step 1                                                                      |
+| `GITHUB_CLIENT_ID` / `_SECRET` | **yes**       | From step 1                                                                      |
 | `DB_PATH`                      | no              | SQLite file path. Defaults to the project root; Docker sets `/data/comments.db`  |
 
 Two of these are load-bearing and worth stating plainly:
@@ -72,7 +57,7 @@ Two of these are load-bearing and worth stating plainly:
   `https://example.com`, not `example.com` and not a trailing slash. If your blog is
   reachable at both the apex and `www`, list both, or login silently fails on one of them.
 - **`ALLOWED_SITES` is what stops your instance being an open database.** Without it, anyone
-  who finds the API URL can log in with their own Google account and write rows under any
+  who finds the API URL can log in with their own GitHub account and write rows under any
   `data-site` they invent, forever. It costs nothing and there is no reason to leave it empty.
 
 ---
@@ -204,7 +189,7 @@ every boot, so adding a column is a manual `ALTER TABLE` plus an edit to `SCHEMA
       primary email on the account, even if it is private
 - [ ] The app binds to `127.0.0.1`, only the proxy is exposed
 - [ ] Backups run and you have restored one at least once
-- [ ] The Google consent screen is published, not stuck in _Testing_
+- [ ] The GitHub OAuth app is fully configured and its callback URL matches `BASE_URL`
 
 ---
 

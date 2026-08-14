@@ -4,14 +4,13 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class Provider(StrEnum):
-    google = "google"
     github = "github"
 
 
 class User(BaseModel):
     """The signed token payload. Also what the widget gets to draw the UI."""
 
-    sub: str  # "google:12345" — prefixed so two providers cannot collide on an id
+    sub: str  # "github:12345" — prefixed so the provider cannot collide on an id
     name: str
     avatar: str | None = None
     email: str | None = None

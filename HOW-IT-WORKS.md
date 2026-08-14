@@ -14,7 +14,7 @@ src/
 ├── models.py          the table DDL and every SQL query. SQL lives nowhere else
 ├── database.py        the per-request connection dependency, and init_db()
 ├── security.py        token signing, the current_user dependency, admin check
-├── oauth.py           the Google/GitHub clients and profile normalisation
+├── oauth.py           the GitHub client and profile normalisation
 └── routers/
     ├── auth.py        /auth/{provider}/login and /callback
     └── comments.py    /api/comments
@@ -43,11 +43,11 @@ There are two separate origins, and that single fact drives every design decisio
   │       ↓                │             │                              │
   │  widget in Shadow DOM  │─── XHR ────▶│  /api/comments   ──▶ SQLite  │
   │       ↓                │             │                              │
-  │  popup window          │──redirect──▶│  /auth/google/login          │
+  │  popup window          │──redirect──▶│  /auth/github/login          │
   └────────────────────────┘             └──────────────────────────────┘
                                                       │
                                                       ▼
-                                          Google / GitHub OAuth
+                                          GitHub OAuth
 ```
 
 The widget runs on **your blog's** origin. The API lives somewhere else. Browsers block
@@ -129,11 +129,11 @@ The widget cannot use a session cookie, because it is a third-party cookie from 
 browser's point of view. So the flow is a popup that hands a token back through
 `postMessage`:
 
-**5a.** The user clicks _Sign in with Google_. The widget opens a popup
+**5a.** The user clicks _Sign in with GitHub_. The widget opens a popup
 ([static/embed.js:63-75](static/embed.js#L63-L75)):
 
 ```
-window.open("https://comments.example.com/auth/google/login?origin=https://myblog.com")
+window.open("https://comments.example.com/auth/github/login?origin=https://myblog.com")
 ```
 
 **5b.** `/auth/{provider}/login` checks that `origin` is in `ALLOWED_ORIGINS`, **stores it
@@ -142,7 +142,7 @@ in the server-side session**, and redirects to the provider
 keeps it in that same session cookie. That cookie is first-party here — the popup is on
 the API's own domain — so it works normally.
 
-**5c.** The user authenticates with Google or GitHub and is redirected back to
+**5c.** The user authenticates with GitHub and is redirected back to
 `/auth/{provider}/callback?code=...&state=...`.
 
 **5d.** The callback re-reads the origin **from the session, not from the query string**
@@ -154,13 +154,12 @@ in a signed cookie, and validated again on the way out.
 **5e.** Authlib exchanges the code for tokens, then the profile is normalised into one
 shape ([src/oauth.py](src/oauth.py)):
 
-- **Google** returns everything in the OIDC id_token: `sub`, `name`, `email`, `picture`.
 - **GitHub** needs an extra `GET /user`. If the user hides their public email, a second
   call to `/user/emails` finds the primary one ([src/oauth.py](src/oauth.py)) —
   without it, admins whose GitHub email is private could never be recognised.
 
-The result is `{"sub": "google:12345", "name": ..., "avatar": ..., "email": ...}`. The
-`sub` prefix is what keeps Google user 42 and GitHub user 42 from being the same person.
+The result is `{"sub": "github:12345", "name": ..., "avatar": ..., "email": ...}`. The
+`sub` prefix is what keeps one provider's user 42 from colliding with another's.
 
 **5f.** The server signs that dict with `itsdangerous.URLSafeTimedSerializer` and returns a
 tiny HTML page that posts it to the opener and closes itself
@@ -239,7 +238,7 @@ CREATE TABLE comments (
   page          TEXT NOT NULL,      -- data-page, the thread key
   parent_id     INTEGER REFERENCES comments(id),   -- NULL = top level
   body          TEXT NOT NULL,
-  author_id     TEXT NOT NULL,      -- "google:12345" / "github:678"
+  author_id     TEXT NOT NULL,      -- "github:678"
   author_name   TEXT NOT NULL,
   author_avatar TEXT,
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),   -- UTC

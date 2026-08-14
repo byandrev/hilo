@@ -20,7 +20,7 @@
     deleted: "[deleted]",
     signIn: "Sign in with",
     signOut: "Sign out",
-    providers: { google: "Google", github: "GitHub" },
+    providers: { github: "GitHub" },
     expired: "Your session expired. Please sign in again.",
     failed: "Something went wrong.",
     poweredBy: "Powered by Hilo",
@@ -72,7 +72,11 @@
   const $ = (s) => root.querySelector(s);
   const thread = $(".thread");
   const bar = $(".bar");
-  $(".powered").textContent = TEXT.poweredBy;
+  const powered = el("a", "powered", TEXT.poweredBy);
+  powered.href = "https://byandrev.github.io/hilo/";
+  powered.target = "_blank";
+  powered.rel = "noopener noreferrer";
+  $(".powered").append(powered);
 
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
@@ -282,7 +286,7 @@
       bar.append(out);
       composer(null, bar);
     } else {
-      for (const p of ["google", "github"]) {
+      for (const p of ["github"]) {
         const b = el(
           "button",
           "primary",

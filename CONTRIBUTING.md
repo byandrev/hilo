@@ -20,7 +20,7 @@ src/
 ├── models.py          the table DDL and every SQL query
 ├── database.py        the per-request connection dependency, and init_db()
 ├── security.py        token signing, the current_user dependency, admin check
-├── oauth.py           the Google/GitHub clients and profile normalisation
+├── oauth.py           the GitHub client and profile normalisation
 └── routers/
     ├── auth.py        /auth/{provider}/login and /callback
     └── comments.py    /api/comments

@@ -9,14 +9,6 @@ from .schemas import Provider, User
 oauth = OAuth()
 
 oauth.register(
-    name=Provider.google,
-    client_id=settings.google_client_id,
-    client_secret=settings.google_client_secret,
-    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
-    client_kwargs={"scope": "openid email profile"},
-)
-
-oauth.register(
     name=Provider.github,
     client_id=settings.github_client_id,
     client_secret=settings.github_client_secret,
@@ -51,19 +43,5 @@ async def _github_profile(token: dict) -> User:
     )
 
 
-def _google_profile(token: dict) -> User:
-    info = token["userinfo"]
-
-    return User(
-        sub=f"google:{info['sub']}",
-        name=info.get("name") or info["email"],
-        avatar=info.get("picture"),
-        email=info.get("email"),
-    )
-
-
 async def fetch_profile(provider: Provider, token: dict) -> User:
-    if provider is Provider.google:
-        return _google_profile(token)
-
     return await _github_profile(token)

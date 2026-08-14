@@ -26,8 +26,6 @@ class Settings(BaseSettings):
     allowed_sites: Annotated[set[str], NoDecode] = set()
     admin_emails: Annotated[set[str], NoDecode] = set()
 
-    google_client_id: str = ""
-    google_client_secret: str = ""
     github_client_id: str = ""
     github_client_secret: str = ""
 

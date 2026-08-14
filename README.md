@@ -1,7 +1,7 @@
 # Hilo
 
 Self-hosted comments for blogs and static sites. A FastAPI backend, a SQLite file, and one
-`<script>` tag you paste into your pages. Sign-in with Google and GitHub. MIT licensed.
+`<script>` tag you paste into your pages. Sign-in with GitHub. MIT licensed.
 
 No ORM, no migrations, no build step, no npm. A small FastAPI package under `src/`, and one
 file of vanilla JS.
@@ -46,7 +46,7 @@ the look — normally the widget follows the OS setting automatically.
 
 ## Features
 
-- Sign in with **Google** and **GitHub** — no passwords, no account management
+- Sign in with **GitHub** — no passwords, no account management
 - **Unlimited reply nesting**, resolved client-side from a single flat query
 - Authors delete their own comments; admins delete any. Deletes are soft, so replies survive
 - Rate limited to 5 comments per minute per user
@@ -107,7 +107,7 @@ For production, see [DEPLOY.md](DEPLOY.md).
 | `GET`    | `/api/comments?site=&page=`      | —      | Flat list ordered by `id`. Deleted rows come back blanked |
 | `POST`   | `/api/comments`                  | Bearer | `{site, page, body, parent_id?}` → 201 with the new row   |
 | `DELETE` | `/api/comments/{id}`             | Bearer | Author or admin → 204                                     |
-| `GET`    | `/auth/{provider}/login?origin=` | —      | `provider` ∈ `google`, `github`                           |
+| `GET`    | `/auth/{provider}/login?origin=` | —      | `provider` ∈ `github`                                    |
 | `GET`    | `/auth/{provider}/callback`      | —      | Returns the `postMessage` bridge page                     |
 | `GET`    | `/embed.js`                      | —      | The widget                                                |
 
@@ -137,7 +137,7 @@ src/
 ├── models.py          the table and every SQL query
 ├── database.py        per-request connection dependency
 ├── security.py        token signing and the current_user dependency
-├── oauth.py           Google/GitHub clients and profile normalisation
+├── oauth.py           GitHub client and profile normalisation
 └── routers/           auth.py, comments.py
 
 static/embed.js        the widget, vanilla JS, no build step (see STYLES.md)
