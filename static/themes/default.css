@@ -1,7 +1,7 @@
 /* The default theme: bare neutral grays, transparent background. Light and dark
    variants follow the OS unless data-scheme is set on the script tag. */
 
-:host {
+.comments-widget {
   --comments-text: #1a1a1a;
   --comments-muted: #6f6f6f;
   --comments-surface: #ffffff;
@@ -11,7 +11,7 @@
   --comments-danger: #c0392b;
 }
 
-:host([data-scheme="dark"]) {
+.comments-widget[data-scheme="dark"] {
   --comments-text: #ededed;
   --comments-muted: #9a9a9a;
   --comments-surface: #1b1b1b;
@@ -22,7 +22,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :host:not([data-scheme]) {
+  .comments-widget:not([data-scheme]) {
     --comments-text: #ededed;
     --comments-muted: #9a9a9a;
     --comments-surface: #1b1b1b;

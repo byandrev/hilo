@@ -36,21 +36,26 @@
     script.after(host);
   }
 
-  const root = host.attachShadow({ mode: "open" });
+  // No Shadow DOM: styles are namespaced instead, via .comments-widget on the
+  // host element (set above) and a hilo- prefix on every class below.
+  const root = host;
 
-  root.innerHTML = `<div class="widget" part="widget">
-    <footer class="powered" part="powered"></footer>
-    <div class="bar" part="bar"></div>
-    <div class="thread" part="thread"></div>
+  root.innerHTML = `<div class="hilo-widget">
+    <footer class="hilo-powered"></footer>
+    <div class="hilo-bar"></div>
+    <div class="hilo-thread"></div>
   </div>`;
 
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
 
-    if (cls) {
-      n.className = cls;
-      n.setAttribute("part", cls);
-    }
+    // Every class gets the hilo- prefix, from this one spot, so it can never
+    // collide with a class already in use on the host page.
+    if (cls)
+      n.className = cls
+        .split(" ")
+        .map((c) => `hilo-${c}`)
+        .join(" ");
 
     if (text != null) n.textContent = text;
 
@@ -58,13 +63,13 @@
   };
 
   const $ = (s) => root.querySelector(s);
-  const thread = $(".thread");
-  const bar = $(".bar");
+  const thread = $(".hilo-thread");
+  const bar = $(".hilo-bar");
   const powered = el("a", "powered", TEXT.poweredBy);
   powered.href = "https://byandrev.github.io/hilo/";
   powered.target = "_blank";
   powered.rel = "noopener noreferrer";
-  $(".powered").append(powered);
+  $(".hilo-powered").append(powered);
 
   // --- time ------------------------------------------------------------
 
@@ -250,7 +255,9 @@
     if (!rows.length) thread.append(el("p", "empty", TEXT.empty));
 
     bar.replaceChildren();
-    root.querySelectorAll(".widget > .form").forEach((f) => f.remove());
+    root
+      .querySelectorAll(".hilo-widget > .hilo-form")
+      .forEach((f) => f.remove());
     if (token) {
       bar.append(el("span", "session", user?.name || ""));
       const out = el("button", "action", TEXT.signOut);

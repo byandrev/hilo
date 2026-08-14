@@ -1,6 +1,6 @@
 /* Nord — cool, frosty blues. */
 
-:host {
+.comments-widget {
   --comments-bg: #fff;
   --comments-text: #2e3440;
   --comments-muted: #4c566a;
@@ -11,7 +11,7 @@
   --comments-danger: #bf616a;
 }
 
-:host([data-scheme="dark"]) {
+.comments-widget[data-scheme="dark"] {
   --comments-bg: #2e3440;
   --comments-text: #eceff4;
   --comments-muted: #d8dee9;
@@ -23,7 +23,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :host:not([data-scheme]) {
+  .comments-widget:not([data-scheme]) {
     --comments-bg: #2e3440;
     --comments-text: #eceff4;
     --comments-muted: #d8dee9;
