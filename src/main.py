@@ -49,12 +49,14 @@ def _asset(name: str) -> Path:
 
 @app.get("/embed.js", include_in_schema=False)
 def embed_script():
-    return FileResponse(_asset("embed.js"), media_type="application/javascript")
+    return FileResponse(
+        _asset("embed.js"), media_type="application/javascript; charset=utf-8"
+    )
 
 
 @app.get("/embed.css", include_in_schema=False)
 def embed_styles():
-    return FileResponse(_asset("embed.css"), media_type="text/css")
+    return FileResponse(_asset("embed.css"), media_type="text/css; charset=utf-8")
 
 
 @app.get("/themes/{name}.css", include_in_schema=False)
@@ -62,4 +64,6 @@ def theme_styles(name: str):
     if "/" in name or name in (".", ".."):
         raise FileNotFoundError(name)
 
-    return FileResponse(_asset(f"themes/{name}.css"), media_type="text/css")
+    return FileResponse(
+        _asset(f"themes/{name}.css"), media_type="text/css; charset=utf-8"
+    )
