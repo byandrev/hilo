@@ -1,12 +1,3 @@
-/* Layout and component styles only. Colors come from themes/*.css, which
-   override the public --comments-* tokens below — hosts can restyle everything
-   by setting those same tokens on the page (or by picking a theme via
-   data-theme-css on the script tag).
-
-   No Shadow DOM: everything is namespaced under .comments-widget with
-   hilo-* prefixed classes so a host page's own CSS (a global `button`,
-   `.body`, `.error`...) can't leak in or get overridden by us. */
-
 .comments-widget {
   all: initial;
   display: block;
