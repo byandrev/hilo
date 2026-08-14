@@ -192,7 +192,6 @@
       }
     };
     after.after(f);
-    ta.focus();
   };
 
   const node = (c, depth) => {
