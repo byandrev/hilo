@@ -1,3 +1,5 @@
+"""Application settings."""
+
 from pathlib import Path
 from typing import Annotated
 
@@ -13,14 +15,15 @@ class Settings(BaseSettings):
     """Config from the environment, with `.env` as a fallback.
 
     Real environment variables win over `.env`, which is what makes the Docker
-    setup work: compose passes `.env` through as env vars and overrides DB_PATH.
+    setup work: compose passes `.env` through as env vars and overrides MONGO_URI.
     """
 
     model_config = SettingsConfigDict(env_file=ROOT / ".env", extra="ignore")
 
     secret_key: str
     base_url: str = "http://localhost:8000"
-    db_path: str = str(ROOT / "comments.db")
+    mongo_uri: str = "mongodb://localhost:27017"
+    mongo_db: str = "hilo"
 
     allowed_origins: Annotated[list[str], NoDecode] = []
     allowed_sites: Annotated[set[str], NoDecode] = set()
@@ -47,10 +50,14 @@ class Settings(BaseSettings):
 
     @property
     def https(self) -> bool:
+        """Whether the base URL is HTTPS, which is used to set the secure flag on cookies."""
+
         return self.base_url.startswith("https")
 
     @property
     def token_max_age(self) -> int:
+        """The maximum age of a token in seconds, used to set the cookie expiration."""
+
         return self.token_max_age_days * 24 * 3600
 
 
