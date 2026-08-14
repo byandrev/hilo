@@ -1,3 +1,5 @@
+"""Main application entry point."""
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -13,7 +15,9 @@ from .routers import auth, comments
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    init_db()
+    """Initialize the database connection on startup and close it on shutdown."""
+
+    await init_db()
     yield
 
 
