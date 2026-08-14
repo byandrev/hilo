@@ -149,21 +149,6 @@ examples/              demo page and framework snippets
 [HOW-IT-WORKS.md](HOW-IT-WORKS.md#where-the-code-lives) explains why the boundaries fall
 where they do.
 
-## Testing
-
-```bash
-.venv/bin/python test_api.py
-```
-
-It runs through `TestClient` against a throwaway database and asserts what you cannot check
-by clicking around: forged tokens rejected, non-allowlisted sites rejected, empty and
-oversized bodies rejected, orphan `parent_id` rejected, the sixth comment in a minute rate
-limited, deleting someone else's comment forbidden, and — the subtle one — that after an
-admin deletes a parent, the tombstone is blank _and its replies are still there_.
-
-The cross-origin parts cannot be covered by that. Check them by hand with
-[examples/demo.html](examples/demo.html), served on a different port.
-
 ## What this does not do
 
 No markdown, no editing, no voting or reactions, no email notifications, no pagination, no
