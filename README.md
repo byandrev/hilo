@@ -1,6 +1,6 @@
 # Hilo
 
-Self-hosted comments for blogs and static sites. A FastAPI backend, a SQLite file, and one
+Self-hosted comments for blogs and static sites. A FastAPI backend, MongoDB, and one
 `<script>` tag you paste into your pages. Sign-in with GitHub. MIT licensed.
 
 No ORM, no migrations, no build step, no npm. A small FastAPI package under `src/`, and one
@@ -50,7 +50,7 @@ the look — normally the widget follows the OS setting automatically.
 - **Unlimited reply nesting**, resolved client-side from a single flat query
 - Authors delete their own comments; admins delete any. Deletes are soft, so replies survive
 - Rate limited to 5 comments per minute per user
-- One SQLite file. Backup is `cp`
+- MongoDB via [Beanie](https://beanie-odm.dev). Backup is `mongodump`
 - Multi-site: one instance serves as many blogs as you list in `ALLOWED_SITES`
 - Renders in **Shadow DOM**, so your CSS and the widget's cannot collide
 - **Restyleable** with CSS custom properties and `::part()` — no build step, no fork

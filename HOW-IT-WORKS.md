@@ -1,7 +1,7 @@
 # How it works
 
-A step-by-step walk through everything that happens, from the `<script>` tag to a row in
-SQLite. Read this before changing anything — most of the code is short, but a few pieces
+A step-by-step walk through everything that happens, from the `<script>` tag to a document
+in MongoDB. Read this before changing anything — most of the code is short, but a few pieces
 are load-bearing in ways that are not obvious from the diff.
 
 ## Where the code lives
@@ -11,8 +11,8 @@ src/
 ├── main.py            app wiring: middleware, lifespan, routers, /embed.js
 ├── config.py          Settings, loaded from the environment and .env
 ├── schemas.py         Pydantic in/out models — the request and response contract
-├── models.py          the table DDL and every SQL query. SQL lives nowhere else
-├── database.py        the per-request connection dependency, and init_db()
+├── models.py          the Comment document and every Mongo query. Queries live nowhere else
+├── database.py        the Mongo client and init_db(), which wires up Beanie
 ├── security.py        token signing, the current_user dependency, admin check
 ├── oauth.py           the GitHub client and profile normalisation
 └── routers/
@@ -24,8 +24,8 @@ static/embed.js        the widget, vanilla JS, served verbatim
 
 Two of those boundaries are deliberate rather than decorative:
 
-- **`models.py` is the only file containing SQL.** The rule that every query is
-  parameterised is auditable by reading one file, instead of grepping the whole app.
+- **`models.py` is the only file that queries Mongo.** Every query goes through Beanie's
+  typed `Comment` fields, so there is one file to audit instead of grepping the whole app.
 - **`schemas.py` owns the wire format**, including which fields of a deleted comment are
   blanked. Routes decide _whether_ you may do a thing; schemas decide _what leaves the
   server_.
@@ -41,7 +41,7 @@ There are two separate origins, and that single fact drives every design decisio
   ┌────────────────────────┐             ┌──────────────────────────────┐
   │  <script src=.../>     │─── GET ────▶│  /embed.js                   │
   │       ↓                │             │                              │
-  │  widget in Shadow DOM  │─── XHR ────▶│  /api/comments   ──▶ SQLite  │
+  │  widget in Shadow DOM  │─── XHR ────▶│  /api/comments   ──▶ MongoDB │
   │       ↓                │             │                              │
   │  popup window          │──redirect──▶│  /auth/github/login          │
   └────────────────────────┘             └──────────────────────────────┘
@@ -85,11 +85,11 @@ The widget calls:
 GET /api/comments?site=myblog&page=/posts/hello-world
 ```
 
-The server returns a **flat** list ordered by `id` — no nesting, no recursive SQL
+The server returns a **flat** list ordered by `id` — no nesting, no recursive query
 ([src/routers/comments.py](src/routers/comments.py)). Deleted comments stay in the list but
 come back with their `body`, `author_name`, `author_avatar` and `author_id` blanked out.
 
-That blanking happens in `CommentOut.from_row` ([src/schemas.py](src/schemas.py)), not in
+That blanking happens in `CommentOut.from_doc` ([src/schemas.py](src/schemas.py)), not in
 the route, and that placement is the point: every path that returns a comment goes through
 the same response model, so there is no way to add an endpoint that leaks the text of a
 deleted comment by forgetting a check.
@@ -207,8 +207,8 @@ tampered token raises `BadSignature` and returns 401. Then, in order
    API URL can store arbitrary data in your database forever.
 4. **`parent_id`, if present, must exist on the same `(site, page)`** → 404. This stops
    replies being grafted onto threads they don't belong to.
-5. **Rate limit** — one `COUNT(*)` over the last 60 seconds for this author, max 5 → 429.
-   One SQL query, no Redis.
+5. **Rate limit** — one count over the last 60 seconds for this author, max 5 → 429.
+   One query, no Redis.
 6. **Insert.** The author's name and avatar are copied _into the row_.
 
 The reply form is a single `<form>` element that gets moved in the DOM to sit under
@@ -220,43 +220,43 @@ native and needs no state tracking.
 `DELETE /api/comments/{id}` allows the original author, or anyone whose token email is in
 `ADMIN_EMAILS` ([src/routers/comments.py](src/routers/comments.py)).
 
-It sets `deleted = 1` — it does **not** run a `DELETE`. A real delete with
-`ON DELETE CASCADE` would silently destroy an entire sub-thread of replies written by other
-people. Instead the row survives as a tombstone rendered as _[deleted]_, and the
-conversation hanging off it stays readable.
+It sets `deleted = true` — it does **not** remove the document. A real delete would
+silently destroy an entire sub-thread of replies written by other people. Instead the
+document survives as a tombstone rendered as _[deleted]_, and the conversation hanging off
+it stays readable.
 
 ---
 
 ## Data model
 
-One table. That's it.
+One collection. That's it.
 
-```sql
-CREATE TABLE comments (
-  id            INTEGER PRIMARY KEY,
-  site          TEXT NOT NULL,      -- data-site, multi-blog on one instance
-  page          TEXT NOT NULL,      -- data-page, the thread key
-  parent_id     INTEGER REFERENCES comments(id),   -- NULL = top level
-  body          TEXT NOT NULL,
-  author_id     TEXT NOT NULL,      -- "github:678"
-  author_name   TEXT NOT NULL,
-  author_avatar TEXT,
-  created_at    TEXT NOT NULL DEFAULT (datetime('now')),   -- UTC
-  deleted       INTEGER NOT NULL DEFAULT 0
-);
-CREATE INDEX idx_page ON comments(site, page, id);
+```python
+class Comment(Document):
+    site: str            # data-site, multi-blog on one instance
+    page: str             # data-page, the thread key
+    parent_id: PydanticObjectId | None = None   # None = top level
+    body: str
+    author_id: str        # "github:678"
+    author_name: str
+    author_avatar: str | None = None
+    created_at: datetime  # UTC, defaults to now
+    deleted: bool = False
+
+    class Settings:
+        name = "comments"
+        indexes = [IndexModel([("site", 1), ("page", 1), ("_id", 1)])]
 ```
 
-**There is deliberately no `users` table.** The author's name and avatar are denormalised
-onto every comment. A comment widget has no profile pages, no "edit your display name", no
-user list — so the join you would be saving never happens, and the write path stays a
-single `INSERT`. The visible consequence: if someone changes their GitHub avatar, their old
-comments keep the old one.
+**There is deliberately no `users` collection.** The author's name and avatar are
+denormalised onto every comment. A comment widget has no profile pages, no "edit your
+display name", no user list — so the join you would be saving never happens, and the write
+path stays a single insert. The visible consequence: if someone changes their GitHub
+avatar, their old comments keep the old one.
 
-**Connections are opened per request** ([src/database.py](src/database.py)) through a FastAPI
-dependency. Opening SQLite is cheap, and this sidesteps every thread-safety question that
-comes with sharing one connection. `busy_timeout=5000` makes concurrent writers wait
-instead of failing, and WAL mode lets readers proceed during a write.
+**One client for the app's lifetime** ([src/database.py](src/database.py)), opened once at
+startup instead of per request. Mongo's driver pools and multiplexes connections itself, so
+there is no thread-safety question to sidestep the way SQLite's per-request connection did.
 
 ---
 
@@ -270,7 +270,8 @@ These are the checks that are load-bearing. If you modify this project, don't re
    callback URL. This is what stops token theft via a popup opened from an attacker's page.
 3. **`ALLOWED_SITES`** stops your instance being used as an open write-anywhere database.
 4. **`textContent` everywhere** in the widget. No user string ever reaches `innerHTML`.
-5. **Parameterised SQL** on every query — no string interpolation into SQL anywhere.
+5. **Typed queries** on every access — `Comment.field == value` through Beanie, never a
+   hand-built filter dict built from string interpolation.
 6. **Rate limiting** at 5 comments/minute/user, on top of mandatory OAuth login.
 
 CORS is configured **without** `allow_credentials`, because auth rides in the

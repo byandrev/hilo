@@ -1,8 +1,7 @@
 # Deploying
 
-This runs as a single Python process with a SQLite file next to it. A $5 VPS is plenty —
-a comment widget is a few requests per page view, and reads never touch the network beyond
-your own box.
+This runs as a single Python process talking to MongoDB. A $5 VPS is plenty — a comment
+widget is a few requests per page view, and both processes can share the same box.
 
 You need a **domain or subdomain for the API** (`comments.example.com`), separate from the
 blog it serves. HTTPS is not optional: GitHub will not accept a plain-HTTP callback on a
@@ -49,7 +48,8 @@ python3 -c "import secrets; print(secrets.token_urlsafe(32))"   # → SECRET_KEY
 | `RATE_LIMIT_PER_MINUTE`        | no              | Comments per minute per user. Defaults to 5                                      |
 | `TOKEN_MAX_AGE_DAYS`           | no              | How long a login lasts. Defaults to 30                                           |
 | `GITHUB_CLIENT_ID` / `_SECRET` | **yes**       | From step 1                                                                      |
-| `DB_PATH`                      | no              | SQLite file path. Defaults to the project root; Docker sets `/data/comments.db`  |
+| `MONGO_URI`                    | no              | Mongo connection string. Defaults to `mongodb://localhost:27017`; Docker points it at the `mongo` service |
+| `MONGO_DB`                     | no              | Database name. Defaults to `hilo`                                                |
 
 Two of these are load-bearing and worth stating plainly:
 
@@ -70,13 +70,15 @@ Two of these are load-bearing and worth stating plainly:
 docker compose up -d
 ```
 
-The compose file mounts `./data` and forces `DB_PATH=/data/comments.db`, overriding whatever
-is in `.env`. That override matters: without it the database lands inside the container
-filesystem and vanishes on the next `docker compose build`.
+The compose file also brings up a `mongo` service with `./data` mounted for its data
+directory, and points `MONGO_URI` at it, overriding whatever is in `.env`. That override
+matters: without it the app looks for Mongo on `localhost`, which is the container itself,
+not the `mongo` service.
 
 ### systemd
 
-If you would rather not run Docker:
+If you would rather not run Docker, install MongoDB separately (`apt install mongodb-org` or
+your distro's package) and point `MONGO_URI` at it.
 
 ```ini
 # /etc/systemd/system/comments.service
@@ -101,10 +103,10 @@ sudo systemctl enable --now comments
 Bind to `127.0.0.1`, never `0.0.0.0` — the reverse proxy is the only thing that should reach
 it.
 
-**One worker is the right answer here.** SQLite in WAL mode handles concurrent readers fine,
-but multiple worker processes writing the same file buys you contention rather than
-throughput, and a comment widget's write volume is measured in comments per hour. Scale by
-caching `GET /api/comments` at the proxy, not by adding workers.
+**One worker is still plenty.** MongoDB handles concurrent readers and writers fine across
+workers, but a comment widget's write volume is measured in comments per hour, so there is
+nothing to gain from more of them. Scale by caching `GET /api/comments` at the proxy, not by
+adding workers.
 
 ---
 
@@ -147,21 +149,20 @@ outright, and a proxy-level `*` would quietly undo your allowlist.
 
 ## 5. Backups
 
-One file. Do not copy it with `cp` while the server is running — WAL mode means the
-`-wal` sidecar holds committed data that a naive copy misses. Use SQLite's own backup,
-which is consistent under concurrent writes:
+Use `mongodump`, which is consistent under concurrent writes:
 
 ```bash
-sqlite3 /srv/comments/data/comments.db ".backup '/backups/comments-$(date +%F).db'"
+mongodump --uri "$MONGO_URI" --db hilo --archive=/backups/hilo-$(date +%F).archive
 ```
 
 A daily cron line is enough:
 
 ```cron
-0 4 * * * sqlite3 /srv/comments/data/comments.db ".backup '/backups/comments-$(date +\%F).db'"
+0 4 * * * mongodump --uri "mongodb://localhost:27017" --db hilo --archive=/backups/hilo-$(date +\%F).archive
 ```
 
-Restoring is copying the file back and restarting. Keep the backups off the same machine.
+Restore with `mongorestore --archive=... --nsInclude 'hilo.*'`. Keep the backups off the
+same machine.
 
 ---
 
@@ -172,9 +173,10 @@ git pull
 docker compose up -d --build      # or: pip install -r requirements.txt && systemctl restart comments
 ```
 
-There is no migration system. The schema is a `CREATE TABLE IF NOT EXISTS` that runs on
-every boot, so adding a column is a manual `ALTER TABLE` plus an edit to `SCHEMA` in
-`src/models.py`. **Take a backup before any schema change** — nothing will do it for you.
+There is no migration system. MongoDB has no schema to alter — adding a field is just an
+edit to the `Comment` document in `src/models.py`; existing documents simply don't have it
+until they're next written. **Take a backup before any change that renames or removes a
+field** — nothing will do it for you.
 
 ---
 
@@ -203,4 +205,4 @@ every boot, so adding a column is a manual `ALTER TABLE` plus an edit to `SCHEMA
 | CORS error in the console            | Origin missing from `ALLOWED_ORIGINS`, or the proxy is injecting a second CORS header                                           |
 | Everyone logged out after a deploy   | `SECRET_KEY` changed — it is probably being regenerated instead of set                                                          |
 | Admin delete returns 403             | The token's email is not in `ADMIN_EMAILS`. GitHub users with a hidden email get their primary address; confirm which one it is |
-| Comments vanished after rebuild      | `DB_PATH` pointed inside the container instead of the mounted volume                                                            |
+| Comments vanished after rebuild      | `MONGO_URI` pointed at a Mongo whose data volume isn't mounted, or at the wrong `MONGO_DB`                                      |
