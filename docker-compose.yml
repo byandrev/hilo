@@ -1,6 +1,6 @@
 services:
   comments:
-    build: .
+    image: ghcr.io/byandrev/hilo:latest
     ports: ["8000:8000"]
     env_file: .env
     environment:
