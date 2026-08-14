@@ -123,7 +123,7 @@ long, `429` rate limited.
 | ---------------------------------- | --------------------------------------------------------------------------------------- |
 | [HOW-IT-WORKS.md](HOW-IT-WORKS.md) | Step-by-step walkthrough of the whole flow, the data model, and the security boundaries |
 | [DEPLOY.md](DEPLOY.md)             | OAuth setup, every config variable, reverse proxy, TLS, backups, upgrades               |
-| [STYLES.md](STYLES.md)             | Restyling the widget: custom properties, `::part()`, recipes                            |
+| [STYLING.md](STYLING.md)           | Restyling the widget: base CSS, themes, custom properties                               |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Dev setup, tests, and what kind of changes get merged                                   |
 | [examples/](examples/)             | A runnable demo page and snippets for Hugo, Jekyll, Astro, Next.js                      |
 
@@ -140,7 +140,7 @@ src/
 ├── oauth.py           GitHub client and profile normalisation
 └── routers/           auth.py, comments.py
 
-static/embed.js        the widget, vanilla JS, no build step (see STYLES.md)
+static/embed.js        the widget, vanilla JS, no build step (see STYLING.md)
 build.py               minify static/ into dist/ (rjsmin, rcssmin)
 test_api.py            run with: .venv/bin/python test_api.py
 examples/              demo page and framework snippets
