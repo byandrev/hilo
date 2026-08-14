@@ -28,6 +28,7 @@
   --_accent-text: var(--comments-accent-text, #ffffff);
   --_danger: var(--comments-danger, #c0392b);
 
+  --_widget-padding: var(--comments-widget-padding, 1.25rem);
   --_radius: var(--comments-radius, 6px);
   --_gap: var(--comments-gap, 1.25rem);
   --_indent: var(--comments-indent, 1.25rem);
@@ -69,7 +70,7 @@
   line-height: var(--_line-height);
   color: var(--_text);
   background: var(--_bg);
-  padding: 1.25rem;
+  padding: var(--_widget-padding);
   border-radius: var(--_radius);
 }
 
