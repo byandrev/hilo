@@ -107,10 +107,8 @@
     ["hour", 3600],
     ["minute", 60],
   ];
-  const parseUTC = (s) =>
-    // SQLite gives "2026-08-14 12:34:56" with no zone marker, which most browsers
-    // read as local time. It is UTC — say so, or every timestamp is hours off.
-    new Date(s.replace(" ", "T") + "Z");
+  // The API sends a real ISO 8601 timestamp with an offset, so Date parses it as-is.
+  const parseUTC = (s) => new Date(s);
 
   const ago = (date) => {
     const secs = (date - Date.now()) / 1000;
