@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>comments demo</title>
+<!-- <link rel="stylesheet" href="http://localhost:8000/embed.css" /> -->
+<style>
+  body {
+    font:
+      16px/1.6 system-ui,
+      sans-serif;
+    max-width: 40rem;
+    margin: 3rem auto;
+    padding: 0 1rem;
+  }
+</style>
+
+<h1>Just some blog post</h1>
+<p>
+  Serve this on a DIFFERENT port than the API (python3 -m http.server 3000
+  --directory examples), or you are not testing the case that matters:
+  cross-origin.
+</p>
+
+<script
+  src="http://localhost:8000/embed.js"
+  data-site="myblog"
+  data-page="/examples/demo"
+  data-scheme="light"
+  data-theme="nord"
+></script>
