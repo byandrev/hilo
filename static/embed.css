@@ -224,8 +224,14 @@ button[disabled] {
 
 .powered {
   color: var(--_muted);
-  font-size: 0.75em;
+  font-size: 1em;
   text-align: right;
+  text-decoration: none;
+}
+
+.powered:hover {
+  opacity: 0.85;
+  text-decoration: underline;
 }
 
 /* Vertical rhythm between the bar, the composer and the thread */

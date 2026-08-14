@@ -69,15 +69,6 @@
     inject(API + "/themes/default.css", themeStyles),
   );
 
-  const $ = (s) => root.querySelector(s);
-  const thread = $(".thread");
-  const bar = $(".bar");
-  const powered = el("a", "powered", TEXT.poweredBy);
-  powered.href = "https://byandrev.github.io/hilo/";
-  powered.target = "_blank";
-  powered.rel = "noopener noreferrer";
-  $(".powered").append(powered);
-
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
     // Anything with a class is also a ::part(), so the host page can restyle any
@@ -89,6 +80,15 @@
     if (text != null) n.textContent = text; // never innerHTML with user data
     return n;
   };
+
+  const $ = (s) => root.querySelector(s);
+  const thread = $(".thread");
+  const bar = $(".bar");
+  const powered = el("a", "powered", TEXT.poweredBy);
+  powered.href = "https://byandrev.github.io/hilo/";
+  powered.target = "_blank";
+  powered.rel = "noopener noreferrer";
+  $(".powered").append(powered);
 
   // --- time ------------------------------------------------------------
 
