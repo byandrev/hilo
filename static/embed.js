@@ -1,6 +1,9 @@
 (() => {
   const script = document.currentScript;
-  const API = new URL(script.src).origin;
+  // API defaults to wherever this script was loaded from. Override with data-api
+  // if embed.js itself is downloaded and self-hosted somewhere else (a CDN, a
+  // bundle) but still needs to talk to the real backend.
+  const API = script.dataset.api || new URL(script.src).origin;
   const SITE = script.dataset.site;
   const PAGE = script.dataset.page || location.pathname;
   const SORT = script.dataset.sort || "newest";
@@ -50,7 +53,9 @@
   // Styles live in static files, fetched and injected as <style> elements — a
   // <link> inside shadow DOM isn't supported in every browser. embed.css is the
   // layout; themes/<name>.css (script data-theme) is the color scheme, falling
-  // back to "default" if the requested one can't be loaded.
+  // back to "default" if the requested one can't be loaded. Both default to the
+  // copies served by API, but embed.css can be downloaded and self-hosted too —
+  // point data-css at that URL to use it instead.
   const theme = script.dataset.theme || "default";
   const styles = document.createElement("style");
   const themeStyles = document.createElement("style");
@@ -64,7 +69,7 @@
       .then((css) => {
         el.textContent = css;
       });
-  inject(API + "/embed.css", styles);
+  inject(script.dataset.css || API + "/embed.css", styles);
   inject(API + `/themes/${theme}.css`, themeStyles).catch(() =>
     inject(API + "/themes/default.css", themeStyles),
   );

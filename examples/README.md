@@ -25,9 +25,11 @@ this reason.
 
 | Attribute | Required | Meaning |
 |---|---|---|
-| `src` | yes | Your API's `/embed.js`. The widget reads its own origin from this, so the API URL is never configured twice |
+| `src` | yes | `/embed.js`. The widget reads its API origin from this by default — override with `data-api` if you download and self-host `embed.js` elsewhere |
 | `data-site` | yes | Which site this is. Must be listed in the server's `ALLOWED_SITES` |
 | `data-page` | no | The thread key. Defaults to `location.pathname` |
+| `data-api` | no | Backend origin, when `src` doesn't point at the API itself (a self-hosted `embed.js`) |
+| `data-css` | no | URL of a downloaded, self-hosted `embed.css`, instead of the one served by the API |
 
 The widget renders **where you put the tag** — there is no container element to declare. Put
 the script exactly where you want comments to appear.
