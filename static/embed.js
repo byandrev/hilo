@@ -1,16 +1,12 @@
 (() => {
   const script = document.currentScript;
-  // API defaults to wherever this script was loaded from. Override with data-api
-  // if embed.js itself is downloaded and self-hosted somewhere else (a CDN, a
-  // bundle) but still needs to talk to the real backend.
-  const API = script.dataset.api || new URL(script.src).origin;
+
+  const API = script.dataset.api;
   const SITE = script.dataset.site;
   const PAGE = script.dataset.page || location.pathname;
   const SORT = script.dataset.sort || "newest";
   const KEY = "comments-token";
 
-  // Every string the widget shows. Change them here for another language —
-  // timestamps localise themselves from the browser locale.
   const TEXT = {
     empty: "No comments yet.",
     loading: "Loading…",
@@ -30,18 +26,16 @@
   };
 
   const host = document.createElement("div");
-  host.className = "comments-widget"; // the handle for ::part() from the host page
-  // Force a color scheme instead of following the OS, if the host asks for it.
-  // The CSS keys off :host([data-scheme]) and prefers-color-scheme.
+
+  host.className = "comments-widget";
+
   if (script.dataset.scheme) host.dataset.scheme = script.dataset.scheme;
   if (script.parentNode === document.head) {
-    // A <script> placed before any body content is parsed into <head>, where the
-    // widget would render into nothing at all, silently. Fall back to the body —
-    // document.body does not exist yet at this point, so wait for it.
     addEventListener("DOMContentLoaded", () => document.body.append(host));
   } else {
     script.after(host);
   }
+
   const root = host.attachShadow({ mode: "open" });
 
   root.innerHTML = `<div class="widget" part="widget">
@@ -50,40 +44,16 @@
     <div class="thread" part="thread"></div>
   </div>`;
 
-  // Styles live in static files, fetched and injected as <style> elements — a
-  // <link> inside shadow DOM isn't supported in every browser. embed.css is the
-  // layout; themes/<name>.css (script data-theme) is the color scheme, falling
-  // back to "default" if the requested one can't be loaded. Both default to the
-  // copies served by API, but each can be downloaded and self-hosted too —
-  // data-css and data-theme-css point at those URLs instead.
-  const theme = script.dataset.theme || "default";
-  const styles = document.createElement("style");
-  const themeStyles = document.createElement("style");
-  root.prepend(styles, themeStyles);
-  const inject = (url, el) =>
-    fetch(url)
-      .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.text();
-      })
-      .then((css) => {
-        el.textContent = css;
-      });
-  inject(script.dataset.css || API + "/embed.css", styles);
-  inject(
-    script.dataset.themeCss || API + `/themes/${theme}.css`,
-    themeStyles,
-  ).catch(() => inject(API + "/themes/default.css", themeStyles));
-
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
-    // Anything with a class is also a ::part(), so the host page can restyle any
-    // piece of the widget without us maintaining a separate list.
+
     if (cls) {
       n.className = cls;
       n.setAttribute("part", cls);
     }
-    if (text != null) n.textContent = text; // never innerHTML with user data
+
+    if (text != null) n.textContent = text;
+
     return n;
   };
 

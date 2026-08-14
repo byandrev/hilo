@@ -1,0 +1,29 @@
+{
+  "name": "hilo-comments",
+  "version": "0.1.0",
+  "description": "Widget assets for Hilo (self-hosted comments) — embed.js, embed.css, and themes/*.css. Source here is plain, readable JS/CSS; `npm run build` minifies it into dist/, which is what actually gets published.",
+  "files": [
+    "embed.js",
+    "embed.css",
+    "themes"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/byandrev/hilo.git",
+    "directory": "static"
+  },
+  "homepage": "https://byandrev.github.io/hilo/",
+  "keywords": [
+    "comments",
+    "widget",
+    "embed"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && mkdir -p dist/themes && esbuild embed.js --minify --outfile=dist/embed.js && esbuild embed.css --minify --outfile=dist/embed.css && esbuild themes/*.css --minify --outdir=dist/themes && cp package.json dist/package.json",
+    "release": "npm run build && npm publish dist --access public"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}
