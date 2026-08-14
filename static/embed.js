@@ -54,8 +54,8 @@
   // <link> inside shadow DOM isn't supported in every browser. embed.css is the
   // layout; themes/<name>.css (script data-theme) is the color scheme, falling
   // back to "default" if the requested one can't be loaded. Both default to the
-  // copies served by API, but embed.css can be downloaded and self-hosted too —
-  // point data-css at that URL to use it instead.
+  // copies served by API, but each can be downloaded and self-hosted too —
+  // data-css and data-theme-css point at those URLs instead.
   const theme = script.dataset.theme || "default";
   const styles = document.createElement("style");
   const themeStyles = document.createElement("style");
@@ -70,9 +70,10 @@
         el.textContent = css;
       });
   inject(script.dataset.css || API + "/embed.css", styles);
-  inject(API + `/themes/${theme}.css`, themeStyles).catch(() =>
-    inject(API + "/themes/default.css", themeStyles),
-  );
+  inject(
+    script.dataset.themeCss || API + `/themes/${theme}.css`,
+    themeStyles,
+  ).catch(() => inject(API + "/themes/default.css", themeStyles));
 
   const el = (tag, cls, text) => {
     const n = document.createElement(tag);
