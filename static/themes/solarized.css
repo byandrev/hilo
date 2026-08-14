@@ -1,0 +1,36 @@
+/* Solarized — a warm, low-contrast palette. */
+
+:host {
+  --comments-bg: #fdf6e3;
+  --comments-text: #586e75;
+  --comments-muted: #93a1a1;
+  --comments-surface: #eee8d5;
+  --comments-border: #ddd6c0;
+  --comments-accent: #268bd2;
+  --comments-accent-text: #fdf6e3;
+  --comments-danger: #dc322f;
+}
+
+:host([data-scheme="dark"]) {
+  --comments-bg: #002b36;
+  --comments-text: #93a1a1;
+  --comments-muted: #657b83;
+  --comments-surface: #073642;
+  --comments-border: #12424e;
+  --comments-accent: #2aa198;
+  --comments-accent-text: #002b36;
+  --comments-danger: #dc322f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host:not([data-scheme]) {
+    --comments-bg: #002b36;
+    --comments-text: #93a1a1;
+    --comments-muted: #657b83;
+    --comments-surface: #073642;
+    --comments-border: #12424e;
+    --comments-accent: #2aa198;
+    --comments-accent-text: #002b36;
+    --comments-danger: #dc322f;
+  }
+}

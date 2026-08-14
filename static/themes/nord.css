@@ -1,0 +1,36 @@
+/* Nord — cool, frosty blues. */
+
+:host {
+  --comments-bg: #fff;
+  --comments-text: #2e3440;
+  --comments-muted: #4c566a;
+  --comments-surface: #e5e9f0;
+  --comments-border: #d8dee9;
+  --comments-accent: #5e81ac;
+  --comments-accent-text: #eceff4;
+  --comments-danger: #bf616a;
+}
+
+:host([data-scheme="dark"]) {
+  --comments-bg: #2e3440;
+  --comments-text: #eceff4;
+  --comments-muted: #d8dee9;
+  --comments-surface: #3b4252;
+  --comments-border: #434c5e;
+  --comments-accent: #88c0d0;
+  --comments-accent-text: #2e3440;
+  --comments-danger: #bf616a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host:not([data-scheme]) {
+    --comments-bg: #2e3440;
+    --comments-text: #eceff4;
+    --comments-muted: #d8dee9;
+    --comments-surface: #3b4252;
+    --comments-border: #434c5e;
+    --comments-accent: #88c0d0;
+    --comments-accent-text: #2e3440;
+    --comments-danger: #bf616a;
+  }
+}

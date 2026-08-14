@@ -1,0 +1,36 @@
+/* Sepia — warm paper tones with a terracotta accent. */
+
+:host {
+  --comments-bg: #ffffff;
+  --comments-text: #4a3f35;
+  --comments-muted: #8a7b6d;
+  --comments-surface: #efe6d2;
+  --comments-border: #e0d5bd;
+  --comments-accent: #a4572a;
+  --comments-accent-text: #f7f1e3;
+  --comments-danger: #b03a2e;
+}
+
+:host([data-scheme="dark"]) {
+  --comments-bg: #2a241d;
+  --comments-text: #e8e0d3;
+  --comments-muted: #9b8e7d;
+  --comments-surface: #352d24;
+  --comments-border: #453c30;
+  --comments-accent: #d98e5a;
+  --comments-accent-text: #2a241d;
+  --comments-danger: #e06c5e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host:not([data-scheme]) {
+    --comments-bg: #2a241d;
+    --comments-text: #e8e0d3;
+    --comments-muted: #9b8e7d;
+    --comments-surface: #352d24;
+    --comments-border: #453c30;
+    --comments-accent: #d98e5a;
+    --comments-accent-text: #2a241d;
+    --comments-danger: #e06c5e;
+  }
+}
