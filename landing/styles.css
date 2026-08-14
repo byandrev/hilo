@@ -312,6 +312,10 @@ pre code {
   gap: var(--space-md);
   margin-top: var(--space-2xl);
 }
+.hero__actions .btn {
+  min-width: 13rem;
+  justify-content: center;
+}
 
 .hero__code {
   margin-top: var(--space-2xl);
@@ -581,6 +585,12 @@ pre code {
 .final-cta .btn {
   font-size: var(--text-base);
   padding: var(--space-md) var(--space-xl);
+}
+.final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
 }
 
 /* ---------- footer · Ft2 inline single line ---------- */
