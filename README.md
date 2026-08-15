@@ -95,6 +95,7 @@ Interactive docs at `/docs`.
 | -------------------------------------- | --------------------------------------------------------- |
 | [DEPLOY.md](DEPLOY.md)                 | Deploying on Vercel or Docker, environment variables      |
 | [STYLING.md](STYLING.md)               | Restyling the widget: base CSS, themes, custom properties |
+| [CONTRIBUTING.md](CONTRIBUTING.md)     | How to contribute, project layout, PR expectations         |
 | [landing/examples/](landing/examples/) | A runnable demo page                                      |
 
 ## License
