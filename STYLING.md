@@ -5,19 +5,37 @@ is prefixed `hilo-`, so it can't collide with anything else on the page.
 
 ## 1. Base styles
 
-Required. Link `embed.css` next to the widget script:
+Required. Link `embed.css`, either from your own server or the CDN:
 
 ```html
-<link rel="stylesheet" href="https://comments.example.com/embed.css" />
+<link rel="stylesheet" href="https://example.com/embed.css" />
+
+<!-- or -->
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.css"
+/>
 ```
+
+You can also download the file and serve it as a static asset on your own page instead of
+linking it live.
 
 ## 2. Theme (optional)
 
 A theme is just a CSS file that overrides the same custom properties `embed.css` reads.
-Link one after `embed.css`, from [static/themes/](static/themes) (`nord`, `solarized`, `sepia`):
+Link one after `embed.css`, from [static/themes/](static/themes) (`default`, `nord`, `solarized`,
+`sepia`) — same options apply: your own server, the CDN, or a downloaded copy.
 
 ```html
-<link rel="stylesheet" href="https://comments.example.com/themes/nord.css" />
+<link rel="stylesheet" href="https://example.com/themes/nord.css" />
+
+<!-- or -->
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/nord.css"
+/>
 ```
 
 ## 3. Custom properties
@@ -31,24 +49,24 @@ Or set the tokens yourself, from your own stylesheet — no theme file needed:
 }
 ```
 
-| Token                    | Default                                        |
-| ------------------------ | ----------------------------------------------- |
-| `--comments-font`        | `system-ui, -apple-system, "Segoe UI", sans-serif` |
-| `--comments-font-size`   | `0.9375rem`                                      |
-| `--comments-line-height` | `1.6`                                            |
-| `--comments-text`        | `#1a1a1a`                                        |
-| `--comments-muted`       | `#6f6f6f`                                        |
-| `--comments-bg`          | `transparent`                                    |
-| `--comments-surface`     | `#ffffff`                                        |
-| `--comments-border`      | `#e2e2e2`                                        |
-| `--comments-accent`      | `#1a1a1a`                                        |
-| `--comments-accent-text` | `#ffffff`                                        |
-| `--comments-danger`      | `#c0392b`                                        |
-| `--comments-radius`      | `6px`                                            |
-| `--comments-widget-padding` | `1.25rem`                                     |
-| `--comments-gap`         | `1.25rem`                                        |
-| `--comments-indent`      | `1.25rem`                                        |
-| `--comments-avatar-size` | `24px`                                           |
+| Token                       | Default                                            |
+| --------------------------- | -------------------------------------------------- |
+| `--comments-font`           | `system-ui, -apple-system, "Segoe UI", sans-serif` |
+| `--comments-font-size`      | `0.9375rem`                                        |
+| `--comments-line-height`    | `1.6`                                              |
+| `--comments-text`           | `#1a1a1a`                                          |
+| `--comments-muted`          | `#6f6f6f`                                          |
+| `--comments-bg`             | `transparent`                                      |
+| `--comments-surface`        | `#ffffff`                                          |
+| `--comments-border`         | `#e2e2e2`                                          |
+| `--comments-accent`         | `#1a1a1a`                                          |
+| `--comments-accent-text`    | `#ffffff`                                          |
+| `--comments-danger`         | `#c0392b`                                          |
+| `--comments-radius`         | `6px`                                              |
+| `--comments-widget-padding` | `1.25rem`                                          |
+| `--comments-gap`            | `1.25rem`                                          |
+| `--comments-indent`         | `1.25rem`                                          |
+| `--comments-avatar-size`    | `24px`                                             |
 
 ## 4. Dark mode
 
