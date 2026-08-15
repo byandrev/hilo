@@ -93,6 +93,10 @@ code {
   padding: 0.1em 0.35em;
 }
 
+pre {
+  margin: 0 !important;
+}
+
 pre code {
   border: none;
   font-size: 1em;
@@ -238,7 +242,6 @@ pre code {
   align-items: baseline;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-lg);
-  border-bottom: 1px solid var(--color-rule);
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-muted);
@@ -253,18 +256,23 @@ pre code {
   line-height: 1.7;
   color: var(--color-code-ink);
   tab-size: 2;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: none;
 }
+
 .code__pre code {
   font-family: inherit;
 }
-.tok-c {
-  color: var(--color-muted);
-}
-.tok-k {
-  color: var(--color-accent-ink);
-}
-.tok-s {
-  color: var(--color-muted);
+
+/* Prism ships its own light-only card (background, text-shadow) — strip that
+   so it inherits ours and only its per-token colors show through. */
+.code__pre code[class*="language-"] {
+  background: none;
+  text-shadow: none;
+  font-family: inherit;
+  font-size: inherit;
+  white-space: inherit;
 }
 
 /* ---------- hero ---------- */

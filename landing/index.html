@@ -9,11 +9,12 @@
     <title>Hilo — Self-hosted comments in a single script tag</title>
     <meta
       name="description"
-      content="Comments for blogs and static sites that live on your server. A FastAPI backend, one SQLite file and a script tag. GitHub login. MIT."
+      content="Comments for blogs and static sites that live on your server. A FastAPI backend, MongoDB, and a script tag. GitHub login. Open source, privacy-first. MIT."
     />
 
     <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="tokens.css" />
+    <link rel="stylesheet" href="assets/prism.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
 
@@ -23,6 +24,7 @@
     <header class="site-nav">
       <div class="container site-nav__inner">
         <a class="brand" href="#top">hilo<span class="brand__dot">.</span></a>
+
         <div class="site-nav__actions">
           <a
             class="btn btn--ghost nav__cta"
@@ -54,7 +56,7 @@
       <section class="hero" id="top">
         <div class="container">
           <p class="hero__eyebrow reveal" style="--i: 0">
-            open source · self-hosted
+            open source · privacy-first · self-hosted
           </p>
 
           <h1 class="hero__title reveal" style="--i: 1">
@@ -62,23 +64,30 @@
           </h1>
 
           <p class="hero__lede reveal" style="--i: 2">
-            A FastAPI backend, one SQLite file and a
-            <code>&lt;script&gt;</code> tag you drop into your pages. GitHub
-            login. No ORM, no migrations, no build step, no npm.
+            A FastAPI backend, MongoDB, and one
+            <code>&lt;script&gt;</code> tag you drop into your pages. Sign in
+            with GitHub. Self-host on a VPS with Docker, or deploy to Vercel —
+            no ads, no tracking, no third party reading your visitors' data.
           </p>
 
           <div class="hero__actions reveal" style="--i: 3">
-            <div class="final-cta__actions">
-              <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
+            <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
 
-              <a
-                class="btn btn--ghost"
-                href="https://github.com/byandrev/hilo"
-                target="_blank"
-                rel="noopener noreferrer"
-                >More info on GitHub</a
-              >
-            </div>
+            <a
+              class="btn btn--ghost"
+              href="https://byandrev.github.io/hilo/examples/demo.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >View live demo</a
+            >
+
+            <a
+              class="btn btn--ghost"
+              href="https://github.com/byandrev/hilo"
+              target="_blank"
+              rel="noopener noreferrer"
+              >More info on GitHub</a
+            >
           </div>
 
           <figure class="hero__code reveal" style="--i: 4">
@@ -86,13 +95,13 @@
 
             <pre
               class="code__pre"
-            ><code><span class="tok-k">docker pull</span> ghcr.io/byandrev/hilo:latest</code></pre>
+            ><code class="language-bash">docker pull ghcr.io/byandrev/hilo:latest</code></pre>
           </figure>
 
           <ol class="hero__stages reveal" style="--i: 5">
             <li class="stage-chip">
               <span class="stage-chip__num">1.0</span
-              ><span class="stage-chip__name">PULL</span>
+              ><span class="stage-chip__name">DATABASE</span>
             </li>
 
             <li class="stage-chip">
@@ -102,7 +111,7 @@
 
             <li class="stage-chip">
               <span class="stage-chip__num">3.0</span
-              ><span class="stage-chip__name">RUN</span>
+              ><span class="stage-chip__name">STYLE</span>
             </li>
 
             <li class="stage-chip">
@@ -117,7 +126,7 @@
       <section class="stages" id="setup">
         <div class="container">
           <div class="stages__intro">
-            <h2>Four steps, from docker to your blog.</h2>
+            <h2>Four steps, from server to your blog.</h2>
 
             <p>
               One self-hosted instance. Your database, your users, your rules.
@@ -129,31 +138,67 @@
             <div class="stage__body">
               <p class="stage__meta">
                 <span class="stage__num">1.0</span
-                ><span class="stage__label">PULL</span>
+                ><span class="stage__label">DATABASE</span>
               </p>
 
-              <h3 class="stage__title">Grab the image</h3>
+              <h3 class="stage__title">Set up MongoDB</h3>
 
               <div class="stage__desc">
                 <p>
-                  Hilo is published on the GitHub Container Registry. Pull it
-                  and you're done — or clone and build it yourself with
-                  <code>docker compose up -d</code>.
+                  Two ways to get one: the <code>mongo</code> service already in
+                  <code>docker-compose.yml</code>, nothing else to install — or
+                  an external instance like
+                  <a
+                    href="https://www.mongodb.com/atlas"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >MongoDB Atlas</a
+                  >. Create a database there, copy its connection string into
+                  <code>MONGO_URI</code>, and you're done.
                 </p>
               </div>
 
               <p class="stage__note">
-                One single image, one single runtime dependency.
+                Using Atlas with Docker? Drop the <code>mongo</code> service and
+                its <code>MONGO_URI</code> override from
+                <code>docker-compose.yml</code>. Deploying to
+                <strong>Vercel</strong> instead? Fork the repo, import it there,
+                and point <code>MONGO_URI</code> at Atlas — same environment
+                variables, no server or container to manage.
               </p>
             </div>
 
-            <figure class="stage__media code">
-              <figcaption class="code__head">terminal</figcaption>
+            <div class="stage__media">
+              <figure class="code">
+                <figcaption class="code__head">docker-compose.yml</figcaption>
 
-              <pre
-                class="code__pre"
-              ><code><span class="tok-k">docker pull</span> ghcr.io/byandrev/hilo:latest</code></pre>
-            </figure>
+                <pre class="code__pre"><code class="language-yaml">services:
+  comments:
+    image: ghcr.io/byandrev/hilo:latest
+    ports: ["8000:8000"]
+    env_file: .env
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+    depends_on: [mongo]
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    volumes: ["./data:/data/db"]
+    restart: unless-stopped</code></pre>
+              </figure>
+
+              <figure class="code" style="margin-top: var(--space-md)">
+                <figcaption class="code__head">
+                  .env (Atlas / Vercel)
+                </figcaption>
+
+                <pre
+                  class="code__pre"
+                ><code class="language-bash">MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net
+MONGO_DB=hilo</code></pre>
+              </figure>
+            </div>
           </article>
 
           <article class="stage">
@@ -167,16 +212,16 @@
               <div class="stage__desc">
                 <p>
                   Copy the template and generate a <code>SECRET_KEY</code>.
-                  Three variables are the base: <code>BASE_URL</code>,
-                  <code>ALLOWED_ORIGINS</code> and <code>ALLOWED_SITES</code>.
-                  OAuth credentials go here too.
+                  <code>BASE_URL</code>, <code>ALLOWED_ORIGINS</code> and
+                  <code>ALLOWED_SITES</code> are the base. OAuth credentials go
+                  here too.
                 </p>
               </div>
 
               <p class="stage__note">
-                <code>ALLOWED_ORIGINS</code> lists scheme + host + port, exactly
-                as the browser sends it. <code>ALLOWED_SITES</code> keeps your
-                instance from being an open database.
+                <code>ALLOWED_SITES</code> is what stops your instance being an
+                open database — without it, anyone who finds the URL can write
+                comments under any site they invent.
               </p>
             </div>
 
@@ -185,11 +230,15 @@
 
               <pre
                 class="code__pre"
-              ><code>SECRET_KEY=<span class="tok-c"># python3 -c "import secrets; print(secrets.token_urlsafe(32))"</span>
+              ><code class="language-bash"># python3 -c "import secrets; print(secrets.token_urlsafe(32))"
+SECRET_KEY=
+
 BASE_URL=https://comments.example.com
-ALLOWED_ORIGINS=https://example.com,https://www.example.com
-ALLOWED_SITES=myblog,yourblog
-GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
+ALLOWED_ORIGINS=https://example.com
+ALLOWED_SITES=myblog
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=</code></pre>
             </figure>
           </article>
 
@@ -197,48 +246,43 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
             <div class="stage__body">
               <p class="stage__meta">
                 <span class="stage__num">3.0</span
-                ><span class="stage__label">RUN</span>
+                ><span class="stage__label">STYLE</span>
               </p>
 
-              <h3 class="stage__title">Launch it and add TLS</h3>
+              <h3 class="stage__title">Link the CSS</h3>
 
               <div class="stage__desc">
                 <p>
-                  Bring the container up. The compose file mounts
-                  <code>./data</code> and forces
-                  <code>DB_PATH=/data/comments.db</code> so the database
-                  survives rebuilds. In front, a Caddy reverse proxy.
+                  The widget is published on npm as
+                  <a
+                    href="https://www.npmjs.com/package/hilo_comments"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    ><code>hilo_comments</code></a
+                  >. Pull <code>embed.css</code> from the CDN, or download it
+                  and serve it yourself. A theme is optional, layered on top.
                 </p>
               </div>
 
               <p class="stage__note">
-                One worker is the right call. SQLite in WAL supports concurrent
-                readers; scale with proxy caching, not by adding workers.
+                A theme is just CSS overriding the same custom properties —
+                write your own in one <code>:root</code> block instead if you'd
+                rather.
               </p>
             </div>
 
-            <div class="stage__media">
-              <figure class="code">
-                <figcaption class="code__head">docker-compose.yml</figcaption>
+            <figure class="stage__media code">
+              <figcaption class="code__head">HTML</figcaption>
 
-                <pre class="code__pre"><code>services:
-  comments:
-    image: ghcr.io/byandrev/hilo:latest
-    ports: [<span class="tok-s">"8000:8000"</span>]
-    env_file: .env
-    environment:
-      DB_PATH: /data/comments.db
-    volumes: [<span class="tok-s">"./data:/data"</span>]
-    restart: unless-stopped</code></pre>
-              </figure>
-
-              <figure class="code" style="margin-top: var(--space-md)">
-                <figcaption class="code__head">terminal</figcaption>
-                <pre
-                  class="code__pre"
-                ><code><span class="tok-k">docker compose</span> up -d</code></pre>
-              </figure>
-            </div>
+              <pre class="code__pre"><code class="language-markup">&lt;link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.css"
+/&gt;
+&lt;link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/nord.css"
+/&gt;</code></pre>
+            </figure>
           </article>
 
           <article class="stage">
@@ -253,14 +297,14 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
               <div class="stage__desc">
                 <p>
                   The widget renders wherever you put the tag.
-                  <code>data-page</code> is optional: it defaults to
+                  <code>data-api</code> is your own server;
+                  <code>data-page</code> is optional and defaults to
                   <code>location.pathname</code>.
                 </p>
               </div>
 
               <p class="stage__note">
                 <code>data-sort</code>=oldest|newest ·
-                <code>data-theme</code>=default|solarized|nord|sepia ·
                 <code>data-scheme</code>=light|dark
               </p>
             </div>
@@ -268,10 +312,11 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
             <figure class="stage__media code">
               <figcaption class="code__head">HTML</figcaption>
 
-              <pre class="code__pre"><code>&lt;script
-  src=<span class="tok-s">"https://comments.example.com/embed.js"</span>
-  data-site=<span class="tok-s">"myblog"</span>
-  data-page=<span class="tok-s">"/posts/hello-world"</span>
+              <pre class="code__pre"><code class="language-markup">&lt;script
+  src="https://cdn.jsdelivr.net/npm/hilo_comments/embed.js"
+  data-site="myblog"
+  data-page="/posts/hello-world"
+  data-api="https://comments.example.com"
 &gt;&lt;/script&gt;</code></pre>
             </figure>
           </article>
@@ -328,9 +373,9 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
               <span class="feature__mark" aria-hidden="true"></span>
 
               <div>
-                <p class="feature__name">5/min rate limit per user</p>
+                <p class="feature__name">Rate limited</p>
                 <p class="feature__desc">
-                  Anti-abuse by default, no moderation queue.
+                  Per user, per minute. No moderation queue needed.
                 </p>
               </div>
             </li>
@@ -339,8 +384,8 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
               <span class="feature__mark" aria-hidden="true"></span>
 
               <div>
-                <p class="feature__name">One single SQLite file</p>
-                <p class="feature__desc">Backup is a <code>cp</code>.</p>
+                <p class="feature__name">MongoDB via Beanie</p>
+                <p class="feature__desc">Backup is <code>mongodump</code>.</p>
               </div>
             </li>
 
@@ -360,9 +405,10 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
               <span class="feature__mark" aria-hidden="true"></span>
 
               <div>
-                <p class="feature__name">Shadow DOM</p>
+                <p class="feature__name">Published on npm</p>
                 <p class="feature__desc">
-                  Your CSS and the widget's never clash.
+                  <code>hilo_comments</code> — CDN or self-hosted, no bundler
+                  required.
                 </p>
               </div>
             </li>
@@ -373,8 +419,7 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
               <div>
                 <p class="feature__name">Restyleable</p>
                 <p class="feature__desc">
-                  Custom properties and <code>::part()</code>. No build, no
-                  fork.
+                  Plain CSS custom properties. No Shadow DOM, no build, no fork.
                 </p>
               </div>
             </li>
@@ -460,7 +505,8 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
                   <td class="spec__auth">—</td>
 
                   <td>
-                    Flat list ordered by id. Deleted rows come back blank.
+                    Flat list ordered by creation. Deleted rows come back
+                    blanked.
                   </td>
                 </tr>
 
@@ -492,7 +538,7 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
 
                   <td class="spec__auth">—</td>
 
-                  <td>provider ∈ github.</td>
+                  <td>provider = github.</td>
                 </tr>
 
                 <tr>
@@ -507,11 +553,14 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
                 </tr>
 
                 <tr>
-                  <td><span class="spec__method">GET</span> /embed.js</td>
+                  <td>
+                    <span class="spec__method">GET</span>
+                    /embed.js · /embed.css · /themes/{name}.css
+                  </td>
 
                   <td class="spec__auth">—</td>
 
-                  <td>The widget.</td>
+                  <td>The widget assets, also served by your own instance.</td>
                 </tr>
               </tbody>
             </table>
@@ -525,11 +574,22 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
           <h2>Comments on your server, today.</h2>
 
           <p>
-            A <code>docker pull</code>, a <code>.env</code> and a script tag.
-            The database lives on your machine.
+            A <code>docker pull</code>, a <code>.env</code> and a script tag —
+            or fork the repo and deploy on Vercel. Either way, the database is
+            yours.
           </p>
 
-          <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
+          <div class="final-cta__actions">
+            <a class="btn btn--primary" href="#setup">Self-host &rarr;</a>
+
+            <a
+              class="btn btn--ghost"
+              href="https://byandrev.github.io/hilo/examples/demo.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >View live demo</a
+            >
+          </div>
         </div>
       </section>
     </main>
@@ -544,6 +604,22 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
           <li><a href="#setup">Install</a></li>
           <li><a href="#api">API</a></li>
           <li><a href="#features">Features</a></li>
+          <li>
+            <a
+              href="https://byandrev.github.io/hilo/examples/demo.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Demo</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/byandrev/hilo/blob/main/CONTRIBUTING.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Contributing</a
+            >
+          </li>
         </ul>
 
         <span class="site-footer__credit"
@@ -557,5 +633,7 @@ GITHUB_CLIENT_ID=<span class="tok-s">…</span></code></pre>
         </span>
       </div>
     </footer>
+
+    <script src="assets/prism.js"></script>
   </body>
 </html>
