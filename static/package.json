@@ -1,6 +1,6 @@
 {
   "name": "hilo_comments",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Widget assets for Hilo (self-hosted comments) — embed.js, embed.css, and themes/*.css. Source here is plain, readable JS/CSS; `npm run build` minifies it into dist/, which is what actually gets published.",
   "files": [
     "embed.js",
