@@ -41,7 +41,7 @@
   const root = host;
 
   root.innerHTML = `<div class="hilo-widget">
-    <footer class="hilo-powered"></footer>
+    <footer class="hilo-footer"></footer>
     <div class="hilo-bar"></div>
     <div class="hilo-thread"></div>
   </div>`;
@@ -69,7 +69,7 @@
   powered.href = "https://byandrev.github.io/hilo/";
   powered.target = "_blank";
   powered.rel = "noopener noreferrer";
-  $(".hilo-powered").append(powered);
+  $(".hilo-footer").append(powered);
 
   // --- time ------------------------------------------------------------
 
