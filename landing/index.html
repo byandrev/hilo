@@ -113,7 +113,38 @@
             ><code class="language-bash">docker pull ghcr.io/byandrev/hilo:latest</code></pre>
           </figure>
 
-          <ol class="hero__stages reveal" style="--i: 5">
+          <figure class="hero__code reveal" style="--i: 5">
+            <figcaption class="code__head">widget</figcaption>
+
+            <pre
+              class="code__pre"
+            ><code class="language-bash">npm install hilo_comments
+
+# or skip the install, use the CDN:
+# https://cdn.jsdelivr.net/npm/hilo_comments/embed.js</code></pre>
+          </figure>
+
+          <p
+            class="stage__note reveal"
+            style="--i: 6; margin-top: var(--space-md)"
+          >
+            Or grab the files directly —
+            <a
+              class="link-cta"
+              href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.js"
+              download
+              >embed.js</a
+            >
+            ·
+            <a
+              class="link-cta"
+              href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.css"
+              download
+              >embed.css</a
+            >
+          </p>
+
+          <ol class="hero__stages reveal" style="--i: 7">
             <li class="stage-chip">
               <span class="stage-chip__num">1.0</span
               ><span class="stage-chip__name">DATABASE</span>
@@ -335,6 +366,137 @@ GITHUB_CLIENT_SECRET=</code></pre>
 &gt;&lt;/script&gt;</code></pre>
             </figure>
           </article>
+        </div>
+      </section>
+
+      <!-- ============ themes ============ -->
+      <section class="themes" id="themes">
+        <div class="container">
+          <div class="themes__head">
+            <h2>Themes.</h2>
+
+            <p>
+              Each one overrides the same custom properties from
+              <a
+                href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.css"
+                target="_blank"
+                rel="noopener noreferrer"
+                ><code>embed.css</code></a
+              >. Link one from the CDN, or download the file and serve it
+              yourself.
+            </p>
+          </div>
+
+          <ul class="theme-grid">
+            <li class="theme-card">
+              <div class="theme-card__swatches" aria-hidden="true">
+                <span class="theme-swatch" style="background: #ffffff"></span>
+                <span class="theme-swatch" style="background: #1a1a1a"></span>
+                <span class="theme-swatch" style="background: #e2e2e2"></span>
+              </div>
+              <p class="theme-card__name">Default</p>
+              <p class="theme-card__desc">
+                Bare neutral grays, transparent background. Already the fallback
+                in <code>embed.css</code> — no theme file needed.
+              </p>
+              <div class="theme-card__links">
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/default.css"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >jsDelivr</a
+                >
+
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/default.css"
+                  download
+                  >Download .css</a
+                >
+              </div>
+            </li>
+
+            <li class="theme-card">
+              <div class="theme-card__swatches" aria-hidden="true">
+                <span class="theme-swatch" style="background: #e5e9f0"></span>
+                <span class="theme-swatch" style="background: #5e81ac"></span>
+                <span class="theme-swatch" style="background: #d8dee9"></span>
+              </div>
+              <p class="theme-card__name">Nord</p>
+              <p class="theme-card__desc">Cool, frosty blues.</p>
+              <div class="theme-card__links">
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/nord.css"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >jsDelivr</a
+                >
+
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/nord.css"
+                  download
+                  >Download .css</a
+                >
+              </div>
+            </li>
+
+            <li class="theme-card">
+              <div class="theme-card__swatches" aria-hidden="true">
+                <span class="theme-swatch" style="background: #eee8d5"></span>
+                <span class="theme-swatch" style="background: #268bd2"></span>
+                <span class="theme-swatch" style="background: #ddd6c0"></span>
+              </div>
+              <p class="theme-card__name">Solarized</p>
+              <p class="theme-card__desc">A warm, low-contrast palette.</p>
+              <div class="theme-card__links">
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/solarized.css"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >jsDelivr</a
+                >
+
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/solarized.css"
+                  download
+                  >Download .css</a
+                >
+              </div>
+            </li>
+
+            <li class="theme-card">
+              <div class="theme-card__swatches" aria-hidden="true">
+                <span class="theme-swatch" style="background: #efe6d2"></span>
+                <span class="theme-swatch" style="background: #a4572a"></span>
+                <span class="theme-swatch" style="background: #e0d5bd"></span>
+              </div>
+              <p class="theme-card__name">Sepia</p>
+              <p class="theme-card__desc">
+                Warm paper tones, terracotta accent.
+              </p>
+              <div class="theme-card__links">
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/sepia.css"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >jsDelivr</a
+                >
+
+                <a
+                  class="link-cta"
+                  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/sepia.css"
+                  download
+                  >Download .css</a
+                >
+              </div>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -617,6 +779,7 @@ GITHUB_CLIENT_SECRET=</code></pre>
 
         <ul class="site-footer__links">
           <li><a href="#setup">Install</a></li>
+          <li><a href="#themes">Themes</a></li>
           <li><a href="#api">API</a></li>
           <li><a href="#features">Features</a></li>
           <li>
