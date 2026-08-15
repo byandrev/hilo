@@ -1,163 +1,101 @@
 # Hilo
 
-Self-hosted comments for blogs and static sites. A FastAPI backend, MongoDB, and one
-`<script>` tag you paste into your pages. Sign-in with GitHub. MIT licensed.
+Self-hosted comments for blogs and static sites. Open source, privacy-first, and
+minimalist by design: no ads, no tracking, no third party reading your visitors' data.
+One `<script>` tag, sign-in with GitHub, MIT licensed.
 
-No ORM, no migrations, no build step, no npm. A small FastAPI package under `src/`, and one
-file of vanilla JS.
+A small FastAPI + MongoDB backend that you run yourself — on a VPS with Docker, or on
+Vercel. See [DEPLOY.md](DEPLOY.md).
+
+## The widget
+
+The frontend is published as [`hilo_comments`](https://www.npmjs.com/package/hilo_comments)
+on npm — `embed.js`, `embed.css`, and a few themes, no build step required. It just talks
+to your own instance of the API, so **you need the server running** ([DEPLOY.md](DEPLOY.md))
+before the widget will do anything.
 
 ```html
+<!doctype html>
+<meta charset="utf-8" />
+<title>My blog post</title>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/embed.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/hilo_comments/themes/nord.css"
+/>
+
+<h1>Just some blog post</h1>
+
 <script
-  src="https://comments.example.com/embed.js"
+  src="https://cdn.jsdelivr.net/npm/hilo_comments/embed.js"
   data-site="myblog"
   data-page="/posts/hello-world"
+  data-api="https://hilo-comments.vercel.app"
 ></script>
 ```
 
-The widget renders where you put the tag. `data-page` is optional — it defaults to
-`location.pathname`.
+The widget renders where you put the `<script>` tag. `data-api` is your own server's URL;
+everything else about the CSS — themes, custom properties — is in [STYLING.md](STYLING.md).
 
-### Optional `data-*` attributes
+See it running: [byandrev.github.io/hilo/examples/demo.html](https://byandrev.github.io/hilo/examples/demo.html).
 
-All except `data-site` are optional.
+### `data-*` attributes
 
-| Attribute     | Values                                  | Default             | What it does                                                            |
-| ------------- | --------------------------------------- | ------------------- | ----------------------------------------------------------------------- |
-| `data-site`   | any string                              | —                   | Required. The comment feed's namespace; must be in `ALLOWED_SITES`      |
-| `data-page`   | any string                              | `location.pathname` | Which page's thread to load                                             |
-| `data-sort`   | `oldest`, `newest`                      | `newest`            | Thread ordering: newest-first puts the latest comment on top            |
-| `data-theme`  | `default`, `solarized`, `nord`, `sepia` | `default`           | Color theme from `static/themes/*.css`                                  |
-| `data-scheme` | `light`, `dark`                         | follows the OS      | Force a light or dark color scheme regardless of `prefers-color-scheme` |
-
-```html
-<script
-  src="https://comments.example.com/embed.js"
-  data-site="myblog"
-  data-page="/posts/hello-world"
-  data-sort="newest"
-  data-theme="nord"
-  data-scheme="dark"
-></script>
-```
-
-`data-theme` is a file under `themes/`; the embed falls back to `default` if the
-named theme can't be loaded. `data-scheme` only makes sense when you want to pin
-the look — normally the widget follows the OS setting automatically.
+| Attribute     | Values             | Default             | What it does                                                       |
+| ------------- | ------------------ | ------------------- | ------------------------------------------------------------------ |
+| `data-api`    | your server's URL  | —                   | Required. Where the widget sends requests                          |
+| `data-site`   | any string         | —                   | Required. The comment feed's namespace; must be in `ALLOWED_SITES` |
+| `data-page`   | any string         | `location.pathname` | Which page's thread to load                                        |
+| `data-sort`   | `oldest`, `newest` | `newest`            | Thread ordering                                                    |
+| `data-scheme` | `light`, `dark`    | follows the OS      | Force a color scheme regardless of `prefers-color-scheme`          |
 
 ## Features
 
 - Sign in with **GitHub** — no passwords, no account management
-- **Unlimited reply nesting**, resolved client-side from a single flat query
+- Unlimited reply nesting, resolved client-side from a single flat query
 - Authors delete their own comments; admins delete any. Deletes are soft, so replies survive
-- Rate limited to 5 comments per minute per user
-- MongoDB via [Beanie](https://beanie-odm.dev). Backup is `mongodump`
+- Rate limited per user
+- MongoDB via [Beanie](https://beanie-odm.dev)
 - Multi-site: one instance serves as many blogs as you list in `ALLOWED_SITES`
-- Renders in **Shadow DOM**, so your CSS and the widget's cannot collide
-- **Restyleable** with CSS custom properties and `::part()` — no build step, no fork
+- No Shadow DOM, no build step — restyle with plain CSS custom properties
 - Dark mode follows `prefers-color-scheme`
-- Timestamps are relative and localise to each visitor's language
 
-## Quick start
+## Running the server
 
 ```bash
 git clone <your-fork> comments && cd comments
-cp .env.example .env
-```
+cp .env.example .env   # SECRET_KEY, GITHUB_CLIENT_ID/SECRET, ALLOWED_ORIGINS, ALLOWED_SITES, MONGO_URI, MONGO_DB
 
-Edit `.env` — at minimum you need a `SECRET_KEY`, your OAuth credentials, and the domains
-in `ALLOWED_ORIGINS` / `ALLOWED_SITES`. [DEPLOY.md](DEPLOY.md) walks through registering the
-OAuth apps and explains every variable.
-
-```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/uvicorn src.main:app --reload
 ```
 
-### Build (optional)
-
-`embed.js` and the CSS run unminified in development. To minify them for
-production, run the build step and the server will serve the minified copies from
-`dist/` instead of `static/`:
-
-```bash
-.venv/bin/pip install -r requirements-build.txt   # rjsmin, rcssmin
-.venv/bin/python build.py
-```
-
-`build.py` emits `dist/embed.js`, `dist/embed.css` and `dist/themes/*.css`, and
-`src/main.py` serves `dist/` whenever it exists — plain `uvicorn` in development
-keeps using the readable `static/` originals. Re-run `build.py` after changing
-any static file, and delete `dist/` (or leave it out of `.gitignore`'s `dist/`
-entry) if you want to go back to source.
-
-Then serve the example page on a **different port**, because same-origin testing hides the
-two things most likely to break — CORS and `postMessage`:
-
-```bash
-python3 -m http.server 3000 --directory examples
-# open http://localhost:3000/demo.html
-```
-
-For production, see [DEPLOY.md](DEPLOY.md).
+For production — Docker on a VPS or Vercel — see [DEPLOY.md](DEPLOY.md).
 
 ## API
 
-| Method   | Path                             | Auth   | Notes                                                     |
-| -------- | -------------------------------- | ------ | --------------------------------------------------------- |
-| `GET`    | `/api/comments?site=&page=`      | —      | Flat list ordered by `id`. Deleted rows come back blanked |
-| `POST`   | `/api/comments`                  | Bearer | `{site, page, body, parent_id?}` → 201 with the new row   |
-| `DELETE` | `/api/comments/{id}`             | Bearer | Author or admin → 204                                     |
-| `GET`    | `/auth/{provider}/login?origin=` | —      | `provider` ∈ `github`                                    |
-| `GET`    | `/auth/{provider}/callback`      | —      | Returns the `postMessage` bridge page                     |
-| `GET`    | `/embed.js`                      | —      | The widget                                                |
+| Method   | Path                                            | Auth   | Notes                                                         |
+| -------- | ----------------------------------------------- | ------ | ------------------------------------------------------------- |
+| `GET`    | `/api/comments?site=&page=`                     | —      | Flat list ordered by creation. Deleted rows come back blanked |
+| `POST`   | `/api/comments`                                 | Bearer | `{site, page, body, parent_id?}` → 201 with the new row       |
+| `DELETE` | `/api/comments/{id}`                            | Bearer | Author or admin → 204                                         |
+| `GET`    | `/auth/{provider}/login?origin=`                | —      | `provider` = `github`                                         |
+| `GET`    | `/auth/{provider}/callback`                     | —      | Returns the `postMessage` bridge page                         |
+| `GET`    | `/embed.js`, `/embed.css`, `/themes/{name}.css` | —      | The widget assets, also served by your own instance           |
 
 Interactive docs at `/docs`.
 
-Error codes worth knowing: `401` bad or expired token, `403` site or origin not allowlisted,
-or deleting someone else's comment, `404` parent comment missing, `422` body empty or too
-long, `429` rate limited.
-
 ## Documentation
 
-|                                    |                                                                                         |
-| ---------------------------------- | --------------------------------------------------------------------------------------- |
-| [HOW-IT-WORKS.md](HOW-IT-WORKS.md) | Step-by-step walkthrough of the whole flow, the data model, and the security boundaries |
-| [DEPLOY.md](DEPLOY.md)             | OAuth setup, every config variable, reverse proxy, TLS, backups, upgrades               |
-| [STYLING.md](STYLING.md)           | Restyling the widget: base CSS, themes, custom properties                               |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Dev setup, tests, and what kind of changes get merged                                   |
-| [examples/](examples/)             | A runnable demo page and snippets for Hugo, Jekyll, Astro, Next.js                      |
-
-## Project layout
-
-```
-src/
-├── main.py            app wiring: middleware, lifespan, routers
-├── config.py          settings from the environment and .env
-├── schemas.py         Pydantic in/out models
-├── models.py          the table and every SQL query
-├── database.py        per-request connection dependency
-├── security.py        token signing and the current_user dependency
-├── oauth.py           GitHub client and profile normalisation
-└── routers/           auth.py, comments.py
-
-static/embed.js        the widget, vanilla JS, no build step (see STYLING.md)
-build.py               minify static/ into dist/ (rjsmin, rcssmin)
-test_api.py            run with: .venv/bin/python test_api.py
-examples/              demo page and framework snippets
-```
-
-[HOW-IT-WORKS.md](HOW-IT-WORKS.md#where-the-code-lives) explains why the boundaries fall
-where they do.
-
-## What this does not do
-
-No markdown, no editing, no voting or reactions, no email notifications, no pagination, no
-moderation queue, no spam filter. Mandatory OAuth login plus the rate limit is the entire
-anti-abuse story, and for a personal blog it is enough.
-
-All of these are easy to add later against a schema this small. Add them when you actually
-feel the lack, not before — read [CONTRIBUTING.md](CONTRIBUTING.md) first if you plan to
-send one upstream.
+|                                        |                                                           |
+| -------------------------------------- | --------------------------------------------------------- |
+| [DEPLOY.md](DEPLOY.md)                 | Deploying on Vercel or Docker, environment variables      |
+| [STYLING.md](STYLING.md)               | Restyling the widget: base CSS, themes, custom properties |
+| [landing/examples/](landing/examples/) | A runnable demo page                                      |
 
 ## License
 
