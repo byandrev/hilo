@@ -1,8 +1,8 @@
 # Hilo
 
-Self-hosted comments for blogs and static sites. Open source, privacy-first, and
-minimalist by design: no ads, no tracking, no third party reading your visitors' data.
-One `<script>` tag, sign-in with GitHub, MIT licensed.
+A self-hosted, open source alternative to Disqus. No ads, no tracking, no third party
+reading your visitors' data — just comments for blogs and static sites, minimalist by
+design. One `<script>` tag, sign-in with GitHub, MIT licensed.
 
 A small FastAPI + MongoDB backend that you run yourself — on a VPS with Docker, or on
 Vercel. See [DEPLOY.md](DEPLOY.md).
