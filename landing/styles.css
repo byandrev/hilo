@@ -281,6 +281,23 @@ pre code {
   padding-block: var(--space-3xl) var(--space-4xl);
 }
 
+.hero__top {
+  display: grid;
+  grid-template-columns: 1fr minmax(20rem, 26rem);
+  gap: var(--space-2xl);
+  align-items: center;
+}
+
+.hero__preview {
+  width: 100%;
+  height: auto;
+  max-width: 24rem;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-rule);
+  box-shadow: 0 20px 60px -24px oklch(21% 0.025 250 / 40%);
+}
+
 .hero__eyebrow {
   display: inline-flex;
   align-items: center;
@@ -301,7 +318,7 @@ pre code {
 }
 
 .hero__title {
-  font-size: var(--text-display);
+  font-size: var(--text-3xl);
   font-weight: 600;
   max-width: 16ch;
 }
@@ -309,7 +326,7 @@ pre code {
 .hero__lede {
   margin-top: var(--space-lg);
   max-width: var(--measure);
-  font-size: var(--text-md);
+  font-size: var(--text-base);
   line-height: 1.65;
   color: var(--color-ink-2);
 }
@@ -318,7 +335,7 @@ pre code {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-md);
-  margin-top: var(--space-2xl);
+  margin-top: var(--space-lg);
 }
 .hero__actions .btn {
   min-width: 13rem;
@@ -327,7 +344,6 @@ pre code {
 
 .hero__code {
   margin-top: var(--space-2xl);
-  max-width: 44rem;
 }
 
 /* stage strip */
@@ -737,6 +753,9 @@ pre code {
 }
 
 @media (max-width: 60rem) {
+  .hero__top {
+    grid-template-columns: 1fr;
+  }
   .hero__stages {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-md);
